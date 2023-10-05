@@ -1,4 +1,4 @@
-name: ConvertToJson_build_main
+name: SearchAdAccounts_build_test
 
 on:
   push:
