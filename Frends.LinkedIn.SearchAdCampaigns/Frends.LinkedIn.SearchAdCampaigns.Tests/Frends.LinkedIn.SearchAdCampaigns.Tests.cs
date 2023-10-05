@@ -1,5 +1,6 @@
 namespace Frends.LinkedIn.SearchAdCampaigns.Tests;
 
+using System;
 using System.Threading.Tasks;
 using Frends.LinkedIn.SearchAdCampaigns.Definitions;
 using NUnit.Framework;
@@ -16,7 +17,7 @@ internal class TestClass
     [SetUp]
     public void Setup()
     {
-        var accessToken = "";
+        var accessToken = Environment.GetEnvironmentVariable("Frends_LinkedIn_AccessToken");
 
         _input = new Filter
         {
