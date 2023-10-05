@@ -30,12 +30,12 @@ public class Filter
     public string Id { get; set; }
 
     /// <summary>
-    /// Filters for LInkedIn request.
+    /// Filters for LInkedIn API request.
     /// </summary>
     public TypeFilter[] TypeFilters { get; set; }
 
     /// <summary>
-    /// Filters for LInkedIn request.
+    /// Filters for LInkedIn API request.
     /// </summary>
     public StatusFilter[] StatusFilters { get; set; }
 }
