@@ -6,7 +6,7 @@
 public class TypeFilter
 {
     /// <summary>
-    /// Campaign type filter.
+    /// Account type filter.
     /// </summary>
     /// <example>AccountType.BUSINESS</example>
     public AccountType AccountType { get; set; }

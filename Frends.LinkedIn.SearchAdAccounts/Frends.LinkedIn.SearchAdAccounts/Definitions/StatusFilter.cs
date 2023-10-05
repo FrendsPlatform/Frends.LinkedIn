@@ -6,7 +6,7 @@
 public class StatusFilter
 {
     /// <summary>
-    /// Campaign status filter.
+    /// Account status filter.
     /// </summary>
     /// <example>AccountStatus.ACTIVE</example>
     public AccountStatus AccountStatus { get; set; }
