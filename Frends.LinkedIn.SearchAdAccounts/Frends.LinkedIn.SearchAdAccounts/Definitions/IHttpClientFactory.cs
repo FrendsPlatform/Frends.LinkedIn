@@ -3,7 +3,7 @@
 using System.Net.Http;
 
 /// <summary>
-/// Http Client Factory Interface
+/// Http Client Factory Interface.
 /// </summary>
 public interface IHttpClientFactory
 {
