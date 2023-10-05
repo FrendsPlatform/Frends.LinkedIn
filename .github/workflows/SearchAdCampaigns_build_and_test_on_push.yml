@@ -1,4 +1,4 @@
-name: SearchAdCampaigns_build_main
+name: SearchAdCampaigns_build_test
 
 on:
   push:
