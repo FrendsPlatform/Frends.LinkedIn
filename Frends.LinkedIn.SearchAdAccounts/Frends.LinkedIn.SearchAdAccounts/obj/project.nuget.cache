@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "dgSpecHash": "ZvNoBvRqvqGEb/YlTPSg2RIlfL/0f3oRi/GysMXAov0BSO9ir5LKH9efvF1yFYFrw9VoFcXTwwqYjNss3K7pMQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\virtari\\repos\\Frends.LinkedIn\\Frends.LinkedIn.SearchAdAccounts\\Frends.LinkedIn.SearchAdAccounts\\Frends.LinkedIn.SearchAdAccounts.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\virtari\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\microsoft.win32.systemevents\\7.0.0\\microsoft.win32.systemevents.7.0.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\stylecop.analyzers\\1.1.118\\stylecop.analyzers.1.1.118.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\system.componentmodel.annotations\\4.7.0\\system.componentmodel.annotations.4.7.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\system.configuration.configurationmanager\\7.0.0\\system.configuration.configurationmanager.7.0.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\system.drawing.common\\7.0.0\\system.drawing.common.7.0.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\system.runtime.caching\\7.0.0\\system.runtime.caching.7.0.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\system.security.cryptography.protecteddata\\7.0.0\\system.security.cryptography.protecteddata.7.0.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\system.security.permissions\\7.0.0\\system.security.permissions.7.0.0.nupkg.sha512",
+    "C:\\Users\\virtari\\.nuget\\packages\\system.windows.extensions\\7.0.0\\system.windows.extensions.7.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

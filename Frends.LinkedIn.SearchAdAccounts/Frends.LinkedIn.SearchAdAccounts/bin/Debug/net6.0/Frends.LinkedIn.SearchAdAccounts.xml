@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Frends.LinkedIn.SearchAdAccounts</name>
+    </assembly>
+    <members>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.AccountStatus">
+            <summary>
+            Campaign status filters.
+            </summary>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.AccountType">
+            <summary>
+            Campaign type filters.
+            </summary>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.Filter">
+            <summary>
+            Input class usually contains parameters that are required.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Filter.Reference">
+            <summary>
+            Searches for accounts by reference.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Filter.Name">
+            <summary>
+            Searches for an account by name.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Filter.Id">
+            <summary>
+            Searches for an account by ID.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Filter.TypeFilters">
+            <summary>
+            Filters for LInkedIn request.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Filter.StatusFilters">
+            <summary>
+            Filters for LInkedIn request.
+            </summary>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.IHttpClientFactory">
+            <summary>
+            Http Client Factory Interface
+            </summary>
+        </member>
+        <member name="M:Frends.LinkedIn.SearchAdAccounts.Definitions.IHttpClientFactory.CreateClient(Frends.LinkedIn.SearchAdAccounts.Definitions.Options)">
+            <summary>
+            Create client
+            </summary>
+            <param name="options">Option parameters</param>
+            <returns>HttpClient object</returns>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.Options">
+            <summary>
+            Options parameter.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.LinkedInAPIVersion">
+            <summary>
+            Version of the API used in the request.
+            API versions should have date format as YYYYMM or YYYYMM.RR where RR is the revision.
+            More information: https://learn.microsoft.com/en-us/linkedin/marketing/versioning?view=li-lms-2023-09
+            </summary>
+            <example>202309</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.Token">
+            <summary>
+            Bearer token to be used for requests. Token will be added as Authorization header.
+            </summary>
+            <example>xRqjX_9QXZlvRL6HZHJvbrubhvceV4NFccANh6RwndmAJDkPfP...</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.ConnectionTimeoutSeconds">
+            <summary>
+            Timeout in seconds to be used for the connection and operation.
+            </summary>
+            <example>30</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.FollowRedirects">
+            <summary>
+            If FollowRedirects is set to false, all responses with an HTTP status code from 300 to 399 is returned to the application.
+            </summary>
+            <example>true</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.AllowInvalidCertificate">
+            <summary>
+            Do not throw an exception on certificate error.
+            </summary>
+            <example>true</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.AllowInvalidResponseContentTypeCharSet">
+            <summary>
+            Some Api's return faulty content-type charset header. This setting overrides the returned charset.
+            </summary>
+            <example>true</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.ThrowExceptionOnErrorResponse">
+            <summary>
+            Throw exception if return code of request is not successfull.
+            </summary>
+            <example>true</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Options.AutomaticCookieHandling">
+            <summary>
+            If set to false, cookies must be handled manually. Defaults to true.
+            </summary>
+            <example>true</example>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.Result">
+            <summary>
+            Result class containing properties with private setters.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Result.Body">
+            <summary>
+            Body of response. Response body contains two properties: paging and elements.
+            </summary>
+            <example>{"paging": {"start": 0, "count":10, "links": [], "total": 1}, "elements": [{"totalBudget": ...}]}</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Result.Headers">
+            <summary>
+            Headers of response
+            </summary>
+            <example>{[ "content-type": "application/json", ... ]}</example>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.Result.StatusCode">
+            <summary>
+            Statuscode of response
+            </summary>
+            <example>200</example>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.StatusFilter">
+            <summary>
+            Filter object used with LinkedIn request.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.StatusFilter.AccountStatus">
+            <summary>
+            Campaign status filter.
+            </summary>
+            <example>AccountStatus.ACTIVE</example>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.Definitions.TypeFilter">
+            <summary>
+            Filter object used with LinkedIn request.
+            </summary>
+        </member>
+        <member name="P:Frends.LinkedIn.SearchAdAccounts.Definitions.TypeFilter.AccountType">
+            <summary>
+            Campaign type filter.
+            </summary>
+            <example>AccountType.BUSINESS</example>
+        </member>
+        <member name="T:Frends.LinkedIn.SearchAdAccounts.LinkedIn">
+            <summary>
+            Main class of the Task.
+            </summary>
+        </member>
+        <member name="M:Frends.LinkedIn.SearchAdAccounts.LinkedIn.SearchAdAccounts(Frends.LinkedIn.SearchAdAccounts.Definitions.Filter,Frends.LinkedIn.SearchAdAccounts.Definitions.Options,System.Threading.CancellationToken)">
+            <summary>
+            This is Task.
+            [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdAccounts).
+            </summary>
+            <param name="filter">Filter parameters.</param>
+            <param name="options">Options parameters.</param>
+            <param name="cancellationToken">Cancellation token given by Frends.</param>
+            <returns>Object { string Output }.</returns>
+        </member>
+    </members>
+</doc>

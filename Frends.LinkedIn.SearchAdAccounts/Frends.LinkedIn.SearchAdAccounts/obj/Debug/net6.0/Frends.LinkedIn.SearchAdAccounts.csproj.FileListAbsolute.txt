@@ -1,0 +1,15 @@
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.csproj.AssemblyReference.cache
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.AssemblyInfoInputs.cache
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.AssemblyInfo.cs
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.csproj.CoreCompileInputs.cache
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\bin\Debug\net6.0\FrendsTaskMetadata.json
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\bin\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.deps.json
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\bin\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.dll
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\bin\Debug\net6.0\ref\Frends.LinkedIn.SearchAdAccounts.dll
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\bin\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.pdb
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\bin\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.xml
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.dll
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\ref\Frends.LinkedIn.SearchAdAccounts.dll
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.xml
+C:\Users\virtari\repos\Frends.LinkedIn\Frends.LinkedIn.SearchAdAccounts\Frends.LinkedIn.SearchAdAccounts\obj\Debug\net6.0\Frends.LinkedIn.SearchAdAccounts.pdb
