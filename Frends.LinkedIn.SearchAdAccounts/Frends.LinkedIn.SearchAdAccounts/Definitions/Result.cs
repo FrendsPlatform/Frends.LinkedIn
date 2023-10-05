@@ -27,7 +27,7 @@ public class Result
     public Dictionary<string, string> Headers { get; private set; }
 
     /// <summary>
-    /// Statuscode of response
+    /// Status code of the response.
     /// </summary>
     /// <example>200</example>
     public int StatusCode { get; private set; }
