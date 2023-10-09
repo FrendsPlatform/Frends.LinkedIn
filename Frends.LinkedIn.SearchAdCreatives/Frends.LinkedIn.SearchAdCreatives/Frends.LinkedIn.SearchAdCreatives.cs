@@ -136,35 +136,10 @@ public static class LinkedIn
     {
         var sb = new StringBuilder($"https://api.linkedin.com/rest/adAccounts/{options.AdAccountId}/creatives");
 
-        sb.Append("?q=search&search=(");
+        if (string.IsNullOrEmpty(options.CampaignUrn))
+            return sb.ToString();
 
-        var dict = new Dictionary<string, List<string>>();
-
-        if (!string.IsNullOrEmpty(options.Id))
-            dict["id"] = new List<string> { options.Id };
-
-        if (!string.IsNullOrEmpty(options.Name))
-            dict["name"] = new List<string> { options.Name };
-
-        if (!string.IsNullOrEmpty(options.Reference))
-            dict["reference"] = new List<string> { options.Reference };
-
-        var typeFilters = options.TypeFilters != null ? options.TypeFilters.Select(x => x.CampaignType.ToString()).ToList() : new List<string>();
-        if (typeFilters.Any())
-            dict["type"] = typeFilters;
-
-        var statusFilters = options.StatusFilters != null ? options.StatusFilters.Select(x => x.CampaignStatus.ToString()).ToList() : new List<string>();
-        if (statusFilters.Any())
-            dict["status"] = statusFilters;
-
-        foreach (var obj in dict)
-            sb.Append($"{obj.Key}:(values:List({string.Join(",", obj.Value)})),");
-
-        if (sb.ToString().EndsWith(','))
-            sb.Remove(sb.Length - 1, 1);
-
-        sb.Append(')');
-
+        sb.Append($"?campaigns=List({options.CampaignUrn})");
         return sb.ToString();
     }
 }

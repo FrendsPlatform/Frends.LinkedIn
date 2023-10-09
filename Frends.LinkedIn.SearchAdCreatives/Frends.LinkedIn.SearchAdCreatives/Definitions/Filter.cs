@@ -17,33 +17,9 @@ public class Filter
     public string AdAccountId { get; set; }
 
     /// <summary>
-    /// Searches for accounts by reference.
+    /// Searches for an creatives by campaign Urn.
     /// </summary>
     [DefaultValue("")]
     [DisplayFormat(DataFormatString = "Text")]
-    public string Reference { get; set; }
-
-    /// <summary>
-    /// Searches for an account by name.
-    /// </summary>
-    [DefaultValue("")]
-    [DisplayFormat(DataFormatString = "Text")]
-    public string Name { get; set; }
-
-    /// <summary>
-    /// Searches for an account by ID.
-    /// </summary>
-    [DefaultValue("")]
-    [DisplayFormat(DataFormatString = "Text")]
-    public string Id { get; set; }
-
-    /// <summary>
-    /// Filters for LInkedIn request.
-    /// </summary>
-    public TypeFilter[] TypeFilters { get; set; }
-
-    /// <summary>
-    /// Filters for LInkedIn request.
-    /// </summary>
-    public StatusFilter[] StatusFilters { get; set; }
+    public string CampaignUrn { get; set; }
 }
