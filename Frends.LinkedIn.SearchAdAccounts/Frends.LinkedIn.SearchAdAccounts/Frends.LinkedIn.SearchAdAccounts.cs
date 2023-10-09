@@ -31,7 +31,7 @@ public static class LinkedIn
     /// <param name="filter">Filter parameters.</param>
     /// <param name="options">Options parameters.</param>
     /// <param name="cancellationToken">Cancellation token given by Frends.</param>
-    /// <returns>Object { string Output }.</returns>
+    /// <returns>Object { object Body, Dictionary(string, string) Headers, int StatusCode }.</returns>
     public static async Task<Result> SearchAdAccounts([PropertyTab] Filter filter, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
         var uri = FormRequestURI(filter);
