@@ -25,7 +25,7 @@ public static class LinkedIn
     private static readonly CacheItemPolicy CachePolicy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromHours(1) };
 
     /// <summary>
-    /// This is Task.
+    /// Frends Task for searching AdAccounts from LinkedIn.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdAccounts).
     /// </summary>
     /// <param name="filter">Filter parameters.</param>
