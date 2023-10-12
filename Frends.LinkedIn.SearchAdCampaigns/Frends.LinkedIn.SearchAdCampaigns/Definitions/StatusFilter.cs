@@ -1,8 +1,5 @@
 ﻿namespace Frends.LinkedIn.SearchAdCampaigns.Definitions;
 
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-
 /// <summary>
 /// Filter object used with LinkedIn request.
 /// </summary>
