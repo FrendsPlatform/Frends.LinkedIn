@@ -1,6 +1,5 @@
 namespace Frends.LinkedIn.SearchAdAccountUser.Tests;
 
-using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 using Frends.LinkedIn.SearchAdAccountUser.Definitions;
