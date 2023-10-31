@@ -1,12 +1,13 @@
-﻿namespace Frends.LinkedIn.SearchAdAccountUser.Definitions;
-
-/// <summary>
-/// Class for Accoutn Urn.
-/// </summary>
-public class AccountUrn
+﻿namespace Frends.LinkedIn.SearchAdAccountUser.Definitions
 {
     /// <summary>
-    /// Urn for the account.
+    /// Class for Accoutn Urn.
     /// </summary>
-    public string Urn { get; set; }
+    public class AccountUrn
+    {
+        /// <summary>
+        /// Urn for the account.
+        /// </summary>
+        public string Urn { get; set; }
+    }
 }
