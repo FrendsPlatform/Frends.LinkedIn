@@ -52,9 +52,9 @@
                 .ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false));
 #else
-        var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
-            .ReadAsStringAsync()
-            .ConfigureAwait(false));
+            var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
+                .ReadAsStringAsync()
+                .ConfigureAwait(false));
 #endif
             var rstatusCode = (int)responseMessage.StatusCode;
             var rheaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
@@ -164,5 +164,4 @@
             return sb.ToString();
         }
     }
-
 }
