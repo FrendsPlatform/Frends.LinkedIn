@@ -1,52 +1,63 @@
-namespace Frends.LinkedIn.SearchAdCreatives.Tests;
-
-using System;
-using System.Threading.Tasks;
-using Frends.LinkedIn.SearchAdCreatives.Definitions;
-using NUnit.Framework;
-
-[TestFixture]
-internal class UnitTests
+namespace Frends.LinkedIn.SearchAdCreatives.Tests
 {
-    private static Filter _input;
-    private static Options _options;
+    using System;
+    using System.Threading.Tasks;
+    using Frends.LinkedIn.SearchAdCreatives.Definitions;
+    using NUnit.Framework;
 
-    [SetUp]
-    public void Setup()
+    [TestFixture]
+    internal class UnitTests
     {
-        var accessToken = Environment.GetEnvironmentVariable("Frends_LinkedIn_AccessToken");
+        private static Filter _filter;
+        private static Options _options;
 
-        _input = new Filter
+        [SetUp]
+        public void Setup()
         {
-            AdAccountId = "512500029",
-            CampaignUrn = string.Empty,
-        };
+            var accessToken = Environment.GetEnvironmentVariable("Frends_LinkedIn_AccessToken");
 
-        _options = new Options
+            _filter = new Filter
+            {
+                AdAccountId = "512500029",
+                AdCampaignUrns = Array.Empty<AdCampaign>(),
+            };
+
+            _options = new Options
+            {
+                LinkedInAPIVersion = "202309",
+                Token = accessToken,
+                ThrowExceptionOnErrorResponse = true,
+                ConnectionTimeoutSeconds = 30,
+                AllowInvalidCertificate = true,
+                AllowInvalidResponseContentTypeCharSet = true,
+                AutomaticCookieHandling = true,
+                FollowRedirects = true,
+            };
+        }
+
+        [Test]
+        public async Task SearchCampaigns_TestGetAdCreative()
         {
-            LinkedInAPIVersion = "202309",
-            Token = accessToken,
-            ThrowExceptionOnErrorResponse = true,
-            ConnectionTimeoutSeconds = 30,
-            AllowInvalidCertificate = true,
-            AllowInvalidResponseContentTypeCharSet = true,
-            AutomaticCookieHandling = true,
-            FollowRedirects = true,
-        };
-    }
+            _filter.GetSingleCreative = true;
+            _filter.AdCreativeUrn = "urn:li:sponsoredCreative:119962155";
+            var result = await LinkedIn.SearchAdCreatives(_filter, _options, default);
+            Assert.AreEqual(404, result.StatusCode);
+        }
 
-    [Test]
-    public async Task SearchCampaigns_TestGetAllCampaigns()
-    {
-        var result = await LinkedIn.SearchAdCreatives(_input, _options, default);
-        Assert.AreEqual(200, result.StatusCode);
-    }
+        [Test]
+        public async Task SearchCampaigns_TestGetWithCampaignUrns()
+        {
+            _filter.AdCampaignUrns = new AdCampaign[] { new AdCampaign { AdCampaignUrn = "urn:li:sponsoredCampaign:99966515" } };
+            var result = await LinkedIn.SearchAdCreatives(_filter, _options, default);
+            Assert.AreEqual(200, result.StatusCode);
+        }
 
-    [Test]
-    public async Task SearchCampaigns_TestGetCampaignsWithId()
-    {
-        _input.CampaignUrn = "urn:li:organization:99966515";
-        var result = await LinkedIn.SearchAdCreatives(_input, _options, default);
-        Assert.AreEqual(200, result.StatusCode);
+        [Test]
+        public async Task SearchCampaigns_TestGetWithCreativeUrns()
+        {
+            _filter.AdCreativesUrns = new AdCreative[] { new AdCreative { AdCreativeUrn = "urn:li:sponsoredCreative:119962155" } };
+            var result = await LinkedIn.SearchAdCreatives(_filter, _options, default);
+            Assert.AreEqual(200, result.StatusCode);
+        }
     }
 }
