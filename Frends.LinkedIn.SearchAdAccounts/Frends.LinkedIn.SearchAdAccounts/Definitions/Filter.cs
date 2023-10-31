@@ -1,41 +1,42 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
-
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-
-/// <summary>
-/// Input class usually contains parameters that are required.
-/// </summary>
-public class Filter
+﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
 {
-    /// <summary>
-    /// Searches for accounts by reference.
-    /// </summary>
-    [DefaultValue("")]
-    [DisplayFormat(DataFormatString = "Text")]
-    public string Reference { get; set; }
+    using System.ComponentModel;
+    using System.ComponentModel.DataAnnotations;
 
     /// <summary>
-    /// Searches for an account by name.
+    /// Input class usually contains parameters that are required.
     /// </summary>
-    [DefaultValue("")]
-    [DisplayFormat(DataFormatString = "Text")]
-    public string Name { get; set; }
+    public class Filter
+    {
+        /// <summary>
+        /// Searches for accounts by reference.
+        /// </summary>
+        [DefaultValue("")]
+        [DisplayFormat(DataFormatString = "Text")]
+        public string Reference { get; set; }
 
-    /// <summary>
-    /// Searches for an account by ID.
-    /// </summary>
-    [DefaultValue("")]
-    [DisplayFormat(DataFormatString = "Text")]
-    public string Id { get; set; }
+        /// <summary>
+        /// Searches for an account by name.
+        /// </summary>
+        [DefaultValue("")]
+        [DisplayFormat(DataFormatString = "Text")]
+        public string Name { get; set; }
 
-    /// <summary>
-    /// Filters for LInkedIn API request.
-    /// </summary>
-    public TypeFilter[] TypeFilters { get; set; }
+        /// <summary>
+        /// Searches for an account by ID.
+        /// </summary>
+        [DefaultValue("")]
+        [DisplayFormat(DataFormatString = "Text")]
+        public string Id { get; set; }
 
-    /// <summary>
-    /// Filters for LInkedIn API request.
-    /// </summary>
-    public StatusFilter[] StatusFilters { get; set; }
+        /// <summary>
+        /// Filters for LInkedIn API request.
+        /// </summary>
+        public TypeFilter[] TypeFilters { get; set; }
+
+        /// <summary>
+        /// Filters for LInkedIn API request.
+        /// </summary>
+        public StatusFilter[] StatusFilters { get; set; }
+    }
 }
