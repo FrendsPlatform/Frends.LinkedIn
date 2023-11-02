@@ -47,6 +47,7 @@ internal class TestClass
     {
         var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
         Assert.AreEqual(200, result.StatusCode);
+        Console.WriteLine(result.Body);
     }
 
     [Test]
@@ -55,6 +56,7 @@ internal class TestClass
         _input.Id = "277937223";
         var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
         Assert.AreEqual(200, result.StatusCode);
+        Console.WriteLine(result.Body);
     }
 
     [Test]
@@ -63,6 +65,7 @@ internal class TestClass
         _input.Name = "Test campaign";
         var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
         Assert.AreEqual(200, result.StatusCode);
+        Console.WriteLine(result.Body);
     }
 
     [Test]
