@@ -21,7 +21,7 @@ namespace Frends.LinkedIn.SearchAdAnalytics.Tests
             {
                 Finder = Finder.Analytics,
                 Pivot = Pivot.NONE,
-                StartDate = "12-10-2023",
+                StartDate = DateTime.Now.AddDays(-10).ToString(),
                 Campaigns = new string[] { "urn:li:sponsoredCampaign:99966515" },
                 Creatives = Array.Empty<string>(),
                 Metrics = Array.Empty<string>(),
