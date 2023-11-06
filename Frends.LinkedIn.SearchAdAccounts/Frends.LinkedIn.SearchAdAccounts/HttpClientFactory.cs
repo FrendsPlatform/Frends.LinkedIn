@@ -1,14 +1,15 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts;
-
-using System.Net.Http;
-using Frends.LinkedIn.SearchAdAccounts.Definitions;
-
-internal class HttpClientFactory : IHttpClientFactory
+﻿namespace Frends.LinkedIn.SearchAdAccounts
 {
-    public HttpClient CreateClient(Options options)
+    using System.Net.Http;
+    using Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+    internal class HttpClientFactory : IHttpClientFactory
     {
-        var handler = new HttpClientHandler();
-        handler.SetHandlerSettingsBasedOnOptions(options);
-        return new HttpClient(handler);
+        public HttpClient CreateClient(Options options)
+        {
+            var handler = new HttpClientHandler();
+            handler.SetHandlerSettingsBasedOnOptions(options);
+            return new HttpClient(handler);
+        }
     }
 }
