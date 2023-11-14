@@ -26,7 +26,7 @@ namespace Frends.LinkedIn.SearchAdCreatives.Tests
             {
                 LinkedInAPIVersion = "202309",
                 Token = accessToken,
-                ThrowExceptionOnErrorResponse = true,
+                ThrowExceptionOnErrorResponse = false,
                 ConnectionTimeoutSeconds = 30,
                 AllowInvalidCertificate = true,
                 AllowInvalidResponseContentTypeCharSet = true,
