@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	  <TargetFrameworks>net6.0;netstandard2.0;net471</TargetFrameworks>
@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
 	<PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
 	<PackageReference Include="System.DirectoryServices" Version="7.0.0" />
