@@ -43,7 +43,6 @@ internal class UnitTests
     {
         var result = await LinkedIn.SearchAdAccounts(_input, _options, default);
         Assert.AreEqual(200, result.StatusCode);
-        Console.WriteLine(result.Body);
     }
 
     [Test]

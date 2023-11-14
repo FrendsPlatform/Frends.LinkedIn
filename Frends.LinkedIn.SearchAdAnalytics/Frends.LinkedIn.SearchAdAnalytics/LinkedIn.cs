@@ -11,7 +11,6 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Web;
     using Frends.LinkedIn.SearchAdAnalytics.Definitions;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -26,7 +25,7 @@
         private static readonly CacheItemPolicy CachePolicy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromHours(1) };
 
         /// <summary>
-        /// This is Task.
+        /// Frends Task for fetching AdAnalytics from LinkedInAds.
         /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdAnalytics).
         /// </summary>
         /// <param name="filter">Filter parameters.</param>

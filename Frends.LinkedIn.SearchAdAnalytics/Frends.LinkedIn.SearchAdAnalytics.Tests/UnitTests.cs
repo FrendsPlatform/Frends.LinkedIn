@@ -85,7 +85,6 @@ namespace Frends.LinkedIn.SearchAdAnalytics.Tests
                 "opens",
             };
             var ex = Assert.ThrowsAsync<WebException>(async () => await LinkedIn.SearchAdAnalytics(_filter, _options, default));
-            Console.WriteLine(ex.Message);
             Assert.IsTrue(ex.Message.Contains(@"""status"": 400"));
             Assert.IsTrue(ex.Message.Contains(@"""message"": ""Too many fields requested. Maximum possible fields to request: 20"""));
 
