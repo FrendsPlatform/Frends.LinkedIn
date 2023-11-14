@@ -1,13 +1,14 @@
-﻿namespace Frends.LinkedIn.SearchAdCampaigns.Definitions;
-
-/// <summary>
-/// Filter object used with LinkedIn request.
-/// </summary>
-public class StatusFilter
+﻿namespace Frends.LinkedIn.SearchAdCampaigns.Definitions
 {
     /// <summary>
-    /// Campaign status filter.
+    /// Filter object used with LinkedIn request.
     /// </summary>
-    /// <example>CampaignStatus.ACTIVE</example>
-    public CampaignStatus CampaignStatus { get; set; }
+    public class StatusFilter
+    {
+        /// <summary>
+        /// Campaign status filter.
+        /// </summary>
+        /// <example>CampaignStatus.ACTIVE</example>
+        public CampaignStatus CampaignStatus { get; set; }
+    }
 }
