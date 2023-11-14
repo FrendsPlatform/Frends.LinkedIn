@@ -32,7 +32,7 @@
         /// <param name="filter">Filter parameters.</param>
         /// <param name="options">Options parameters.</param>
         /// <param name="cancellationToken">Cancellation token given by Frends.</param>
-        /// <returns>Object { object body, Dictionary(string, string) Headers, int statusCode }.</returns>
+        /// <returns>Object { object body, Dictionary(string, string) Headers, int statusCode }</returns>
         public static async Task<Result> SearchAdCreatives([PropertyTab] Filter filter, [PropertyTab] Options options, CancellationToken cancellationToken)
         {
             var uri = FormRequestURI(filter);

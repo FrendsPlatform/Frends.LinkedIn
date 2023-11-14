@@ -1,4 +1,4 @@
-name: SearchAdCreatives_build_main
+name: SearchAdCreatives_build_test
 
 on:
   push:
