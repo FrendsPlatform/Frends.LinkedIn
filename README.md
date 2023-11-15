@@ -4,6 +4,7 @@ Frends Task to process LinkedIn operations.
 
 # Tasks
 
+- [Frends.LinkedIn.SearchAdCreatives](Frends.LinkedIn.SearchAdCreatives/README.md)
 - [Frends.LinkedIn.SearchAdAccounts](Frends.LinkedIn.SearchAdAccounts/README.md)
 - [Frends.LinkedIn.SearchAdAnalytics](Frends.LinkedIn.SearchAdAnalytics/README.md)
 - [Frends.LinkedIn.SearchAdCampaigns](Frends.LinkedIn.SearchAdCampaigns/README.md)
