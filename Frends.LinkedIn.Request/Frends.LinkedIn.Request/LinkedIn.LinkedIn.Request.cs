@@ -32,7 +32,7 @@
         /// <param name="input">Input parameters.</param>
         /// <param name="options">Options parameters.</param>
         /// <param name="cancellationToken">Cancellation token given by Frends.</param>
-        /// <returns>Object { string Output }.</returns>
+        /// <returns>Object { object Body, Dictionary&lt;string, string&gt; Headers, int StatusCode }</returns>
         public static async Task<Result> Request([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
         {
             var client = GetHttpClientForOptions(options);
