@@ -25,6 +25,7 @@
             {
                 httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-RestLi-Method", "FINDER");
             }
+
             httpClient.Timeout = TimeSpan.FromSeconds(Convert.ToDouble(options.ConnectionTimeoutSeconds));
         }
     }
