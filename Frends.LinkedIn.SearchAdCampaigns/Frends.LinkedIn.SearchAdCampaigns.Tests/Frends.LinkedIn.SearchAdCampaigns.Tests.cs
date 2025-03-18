@@ -4,6 +4,7 @@ namespace Frends.LinkedIn.SearchAdCampaigns.Tests
     using System.Threading.Tasks;
     using Frends.LinkedIn.SearchAdCampaigns.Definitions;
     using NUnit.Framework;
+    using NUnit.Framework.Legacy;
 
     /// <summary>
     /// Test class.
@@ -46,7 +47,7 @@ namespace Frends.LinkedIn.SearchAdCampaigns.Tests
         public async Task SearchCampaigns_TestGetAllCampaigns()
         {
             var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -54,7 +55,7 @@ namespace Frends.LinkedIn.SearchAdCampaigns.Tests
         {
             _input.Id = "277937223";
             var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -62,7 +63,7 @@ namespace Frends.LinkedIn.SearchAdCampaigns.Tests
         {
             _input.Name = "Test campaign";
             var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -73,8 +74,8 @@ namespace Frends.LinkedIn.SearchAdCampaigns.Tests
                 new TypeFilter { CampaignType = CampaignType.TEXT_AD },
                 };
             var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
-            Assert.IsEmpty(result.Body.elements);
+            ClassicAssert.AreEqual(200, result.StatusCode);
+            ClassicAssert.IsEmpty(result.Body.elements);
         }
 
         [Test]
@@ -85,7 +86,7 @@ namespace Frends.LinkedIn.SearchAdCampaigns.Tests
                 new StatusFilter { CampaignStatus = CampaignStatus.DRAFT },
                 };
             var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -96,8 +97,8 @@ namespace Frends.LinkedIn.SearchAdCampaigns.Tests
                 new StatusFilter { CampaignStatus = CampaignStatus.ACTIVE },
                 };
             var result = await LinkedIn.SearchAdCampaigns(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
-            Assert.IsEmpty(result.Body.elements);
+            ClassicAssert.AreEqual(200, result.StatusCode);
+            ClassicAssert.IsEmpty(result.Body.elements);
         }
     }
 }
