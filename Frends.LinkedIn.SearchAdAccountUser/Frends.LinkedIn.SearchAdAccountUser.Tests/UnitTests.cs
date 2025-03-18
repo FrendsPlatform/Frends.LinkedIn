@@ -4,6 +4,7 @@ namespace Frends.LinkedIn.SearchAdAccountUser.Tests
     using System.Threading.Tasks;
     using Frends.LinkedIn.SearchAdAccountUser.Definitions;
     using NUnit.Framework;
+    using NUnit.Framework.Legacy;
 
     [TestFixture]
     internal class UnitTests
@@ -38,7 +39,7 @@ namespace Frends.LinkedIn.SearchAdAccountUser.Tests
         public async Task LinkedIn_TestFindAdAccountsByAuthenticatedUser()
         {
             var result = await LinkedIn.SearchAdAccountUser(_filter, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -50,7 +51,7 @@ namespace Frends.LinkedIn.SearchAdAccountUser.Tests
             _filter.SearchMethod = SearchAttribute.FindAdAccountUsersByAccounts;
             _filter.AccountUrns = new AccountUrn[] { new AccountUrn { Urn = urn } };
             var result = await LinkedIn.SearchAdAccountUser(_filter, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -64,7 +65,7 @@ namespace Frends.LinkedIn.SearchAdAccountUser.Tests
             _filter.AccountUrn = accountUrn;
             _filter.UserUrn = userUrn;
             var result = await LinkedIn.SearchAdAccountUser(_filter, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
     }
 }
