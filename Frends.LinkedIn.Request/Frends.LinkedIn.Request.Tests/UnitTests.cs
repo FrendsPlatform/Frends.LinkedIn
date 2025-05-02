@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Frends.LinkedIn.Request.Definitions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 [TestFixture]
 internal class UnitTests
@@ -55,7 +56,7 @@ internal class UnitTests
             };
 
             var result = await LinkedIn.Request(input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
     }
 }

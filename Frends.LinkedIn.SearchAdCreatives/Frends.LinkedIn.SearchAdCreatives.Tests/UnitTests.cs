@@ -4,6 +4,7 @@ namespace Frends.LinkedIn.SearchAdCreatives.Tests
     using System.Threading.Tasks;
     using Frends.LinkedIn.SearchAdCreatives.Definitions;
     using NUnit.Framework;
+    using NUnit.Framework.Legacy;
 
     [TestFixture]
     internal class UnitTests
@@ -41,7 +42,7 @@ namespace Frends.LinkedIn.SearchAdCreatives.Tests
             _filter.GetSingleCreative = true;
             _filter.AdCreativeUrn = "urn:li:sponsoredCreative:119962155";
             var result = await LinkedIn.SearchAdCreatives(_filter, _options, default);
-            Assert.AreEqual(404, result.StatusCode);
+            ClassicAssert.AreEqual(404, result.StatusCode);
         }
 
         [Test]
@@ -49,7 +50,7 @@ namespace Frends.LinkedIn.SearchAdCreatives.Tests
         {
             _filter.AdCampaignUrns = new AdCampaign[] { new AdCampaign { AdCampaignUrn = "urn:li:sponsoredCampaign:99966515" } };
             var result = await LinkedIn.SearchAdCreatives(_filter, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -57,7 +58,7 @@ namespace Frends.LinkedIn.SearchAdCreatives.Tests
         {
             _filter.AdCreativesUrns = new AdCreative[] { new AdCreative { AdCreativeUrn = "urn:li:sponsoredCreative:119962155" } };
             var result = await LinkedIn.SearchAdCreatives(_filter, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
     }
 }

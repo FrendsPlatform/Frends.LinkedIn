@@ -4,6 +4,7 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests
     using System.Threading.Tasks;
     using Frends.LinkedIn.SearchAdAccounts.Definitions;
     using NUnit.Framework;
+    using NUnit.Framework.Legacy;
 
     [TestFixture]
     internal class UnitTests
@@ -42,7 +43,7 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests
         public async Task SearchCampaigns_TestGetAllCampaigns()
         {
             var result = await LinkedIn.SearchAdAccounts(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -50,7 +51,7 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests
         {
             _input.Id = "512500029";
             var result = await LinkedIn.SearchAdAccounts(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -58,7 +59,7 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests
         {
             _input.Name = "FrendsTasks Ad Account";
             var result = await LinkedIn.SearchAdAccounts(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -69,8 +70,8 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests
                 new TypeFilter { AccountType = AccountType.ENTERPRISE },
                 };
             var result = await LinkedIn.SearchAdAccounts(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
-            Assert.IsEmpty(result.Body.elements);
+            ClassicAssert.AreEqual(200, result.StatusCode);
+            ClassicAssert.IsEmpty(result.Body.elements);
         }
 
         [Test]
@@ -81,7 +82,7 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests
                 new StatusFilter { AccountStatus = AccountStatus.DRAFT },
                 };
             var result = await LinkedIn.SearchAdAccounts(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
 
         [Test]
@@ -92,7 +93,7 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests
                 new StatusFilter { AccountStatus = AccountStatus.ACTIVE },
                 };
             var result = await LinkedIn.SearchAdAccounts(_input, _options, default);
-            Assert.AreEqual(200, result.StatusCode);
+            ClassicAssert.AreEqual(200, result.StatusCode);
         }
     }
 }
