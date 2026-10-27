@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.0] - 2026-10-27
+### Changed
+- Added configurable error handling and success/error details to the task result.
+- Updated the task and test projects to target .NET 8.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:

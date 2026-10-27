@@ -5,6 +5,11 @@
 
     internal class HttpClientFactory : IHttpClientFactory
     {
+        /// <summary>
+        /// Creates an HTTP client using the provided options.
+        /// </summary>
+        /// <param name="options">Options that configure the HTTP client.</param>
+        /// <returns>A configured HTTP client.</returns>
         public HttpClient CreateClient(Options options)
         {
             var handler = new HttpClientHandler();
