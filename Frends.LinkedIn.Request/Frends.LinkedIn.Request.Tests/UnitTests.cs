@@ -9,14 +9,14 @@ using NUnit.Framework.Legacy;
 [TestFixture]
 internal class UnitTests
 {
-    private static Options _options;
+    private static Options options;
 
     [SetUp]
     public void Setup()
     {
         var accessToken = Environment.GetEnvironmentVariable("Frends_LinkedIn_AccessToken");
 
-        _options = new Options
+        options = new Options
         {
             LinkedInAPIVersion = "202309",
             Token = accessToken,
@@ -55,7 +55,7 @@ internal class UnitTests
                 Headers = Array.Empty<Header>(),
             };
 
-            var result = await LinkedIn.Request(input, _options, default);
+            var result = await LinkedIn.Request(input, options, default);
             ClassicAssert.AreEqual(200, result.StatusCode);
         }
     }
