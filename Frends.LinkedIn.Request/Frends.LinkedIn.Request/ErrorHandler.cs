@@ -6,6 +6,13 @@ namespace Frends.LinkedIn.Request
 
     internal static class ErrorHandler
     {
+        /// <summary>
+        /// Converts an exception into a failed result object or rethrows based on task options.
+        /// </summary>
+        /// <param name="exception">The exception to handle.</param>
+        /// <param name="options">Task options that control whether failures are returned as a result or thrown.</param>
+        /// <param name="throwCanceled">When true, cancellation is rethrown immediately.</param>
+        /// <returns>A failed result object when the exception is handled instead of rethrown.</returns>
         internal static Result Handle(this Exception exception, Options options, bool throwCanceled = true)
         {
             ArgumentNullException.ThrowIfNull(exception);

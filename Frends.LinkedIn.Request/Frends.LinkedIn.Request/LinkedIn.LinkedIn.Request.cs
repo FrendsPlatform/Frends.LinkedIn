@@ -54,7 +54,7 @@
 
                 dynamic response;
 
-#if NET6_0
+#if NET8_0_OR_GREATER
                 var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
                     .ReadAsStringAsync(cancellationToken)
                     .ConfigureAwait(false));
