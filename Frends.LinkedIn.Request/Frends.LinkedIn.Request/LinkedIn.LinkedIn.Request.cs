@@ -23,7 +23,9 @@
     {
         private static readonly IHttpClientFactory ClientFactory = new HttpClientFactory();
         private static readonly ObjectCache ClientCache = MemoryCache.Default;
-        private static readonly CacheItemPolicy CachePolicy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromHours(1) };
+
+        private static readonly CacheItemPolicy CachePolicy =
+            new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromHours(1) };
 
         /// <summary>
         /// Frends Task for sending Http request to LinkedIn API.
@@ -33,7 +35,10 @@
         /// <param name="options">Options parameters.</param>
         /// <param name="cancellationToken">Cancellation token given by Frends.</param>
         /// <returns>object { bool Success, object Body, Dictionary&lt;string, string&gt; Headers, int StatusCode, object Error { string Message, Exception AdditionalInfo } }</returns>
-        public static async Task<Result> Request([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
+        public static async Task<Result> Request(
+            [PropertyTab] Input input,
+            [PropertyTab] Options options,
+            CancellationToken cancellationToken)
         {
             try
             {
@@ -54,15 +59,9 @@
 
                 dynamic response;
 
-#if NET8_0_OR_GREATER
                 var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
                     .ReadAsStringAsync(cancellationToken)
                     .ConfigureAwait(false));
-#else
-                var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
-                    .ReadAsStringAsync()
-                    .ConfigureAwait(false));
-#endif
 
                 var rstatusCode = (int)responseMessage.StatusCode;
                 var rheaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
@@ -90,7 +89,10 @@
 
         private static IDictionary<string, string> GetHeaderDictionary(Header[] headers)
         {
-            return headers.ToDictionary(key => key.Name, value => value.Value, StringComparer.InvariantCultureIgnoreCase);
+            return headers.ToDictionary(
+                key => key.Name,
+                value => value.Value,
+                StringComparer.InvariantCultureIgnoreCase);
         }
 
         private static HttpContent GetContent(Input input, IDictionary<string, string> headers)
@@ -100,21 +102,24 @@
             MediaTypeWithQualityHeaderValue validContentType = null;
             if (headers.TryGetValue("content-type", out string contentTypeValue))
             {
-                contentTypeIsSetAndValid = MediaTypeWithQualityHeaderValue.TryParse(contentTypeValue, out validContentType);
+                contentTypeIsSetAndValid =
+                    MediaTypeWithQualityHeaderValue.TryParse(contentTypeValue, out validContentType);
             }
 
             return contentTypeIsSetAndValid
-                ? new StringContent(input.Message ?? string.Empty, Encoding.GetEncoding(validContentType.CharSet ?? Encoding.UTF8.WebName))
+                ? new StringContent(
+                    input.Message ?? string.Empty,
+                    Encoding.GetEncoding(validContentType.CharSet ?? Encoding.UTF8.WebName))
                 : new StringContent(input.Message ?? string.Empty);
         }
 
         private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(
-                HttpClient httpClient,
-                string method,
-                string url,
-                HttpContent content,
-                IDictionary<string, string> headers,
-                CancellationToken cancellationToken)
+            HttpClient httpClient,
+            string method,
+            string url,
+            HttpContent content,
+            IDictionary<string, string> headers,
+            CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -133,7 +138,8 @@
                 {
                     // Could not add to request headers try to add to content headers
                     // this check is probably not needed anymore as the new HttpClient does not seem fail on malformed headers
-                    var contentHeaderAddedSuccessfully = content.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                    var contentHeaderAddedSuccessfully =
+                        content.Headers.TryAddWithoutValidation(header.Key, header.Value);
                     if (!contentHeaderAddedSuccessfully)
                     {
                         Trace.TraceWarning($"Could not add header {header.Key}:{header.Value}");
@@ -152,7 +158,9 @@
                     throw;
 
                 // Cancellation is from inside of the request, mostly likely a timeout
-                throw new ArgumentException("HttpRequest was canceled, most likely due to a timeout.", canceledException);
+                throw new ArgumentException(
+                    "HttpRequest was canceled, most likely due to a timeout.",
+                    canceledException);
             }
 
             return response;
@@ -170,10 +178,12 @@
             }
         }
 
-        private static Dictionary<string, string> GetResponseHeaderDictionary(HttpResponseHeaders responseMessageHeaders, HttpContentHeaders contentHeaders)
+        private static Dictionary<string, string> GetResponseHeaderDictionary(
+            HttpResponseHeaders responseMessageHeaders, HttpContentHeaders contentHeaders)
         {
             var responseHeaders = responseMessageHeaders.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
-            var allHeaders = contentHeaders?.ToDictionary(h => h.Key, h => string.Join(";", h.Value)) ?? new Dictionary<string, string>();
+            var allHeaders = contentHeaders?.ToDictionary(h => h.Key, h => string.Join(";", h.Value)) ??
+                             new Dictionary<string, string>();
             responseHeaders.ToList().ForEach(x => allHeaders[x.Key] = x.Value);
             return allHeaders;
         }

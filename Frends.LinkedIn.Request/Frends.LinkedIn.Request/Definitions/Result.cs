@@ -1,4 +1,4 @@
-namespace Frends.LinkedIn.Request.Definitions
+﻿namespace Frends.LinkedIn.Request.Definitions
 {
     using System.Collections.Generic;
 
