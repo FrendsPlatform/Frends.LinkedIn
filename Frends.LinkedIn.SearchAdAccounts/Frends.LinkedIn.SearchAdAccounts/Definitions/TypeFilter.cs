@@ -1,14 +1,16 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
+// <copyright file="TypeFilter.cs" company="Frends">
+// Copyright (c) Frends. All rights reserved.
+// </copyright>
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+/// <summary>
+/// Account type filter used in a LinkedIn account search.
+/// </summary>
+public class TypeFilter
 {
     /// <summary>
-    /// Filter object used with LinkedIn request.
+    /// Gets or sets the account type filter.
     /// </summary>
-    public class TypeFilter
-    {
-        /// <summary>
-        /// Account type filter.
-        /// </summary>
-        /// <example>AccountType.BUSINESS</example>
-        public AccountType AccountType { get; set; }
-    }
+    /// <example>AccountType.BUSINESS</example>
+    public AccountType AccountType { get; set; }
 }

@@ -1,17 +1,18 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
-{
-    using System.Net.Http;
+// <copyright file="IHttpClientFactory.cs" company="Frends">
+// Copyright (c) Frends. All rights reserved.
+// </copyright>
 
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+/// <summary>
+/// Creates HTTP clients for LinkedIn requests.
+/// </summary>
+public interface IHttpClientFactory
+{
     /// <summary>
-    /// Http Client Factory Interface.
+    /// Creates an HTTP client using the supplied options.
     /// </summary>
-    public interface IHttpClientFactory
-    {
-        /// <summary>
-        /// Create client
-        /// </summary>
-        /// <param name="options">Option parameters</param>
-        /// <returns>HttpClient object</returns>
-        HttpClient CreateClient(Options options);
-    }
+    /// <param name="options">Request options.</param>
+    /// <returns>A configured HTTP client.</returns>
+    HttpClient CreateClient(Options options);
 }

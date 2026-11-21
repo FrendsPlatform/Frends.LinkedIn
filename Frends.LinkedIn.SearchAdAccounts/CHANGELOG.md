@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.0] - 2026-11-21
+### Changed
+- **[Breaking Change]** Renamed the task input parameter from `Filter` to `Input`.
+- Upgraded the Task and tests to .NET 8 and added standardized failure details to task results.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:

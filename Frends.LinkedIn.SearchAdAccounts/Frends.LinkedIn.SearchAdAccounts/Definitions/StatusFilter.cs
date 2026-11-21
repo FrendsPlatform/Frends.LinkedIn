@@ -1,14 +1,16 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
+// <copyright file="StatusFilter.cs" company="Frends">
+// Copyright (c) Frends. All rights reserved.
+// </copyright>
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+/// <summary>
+/// Status filter used in a LinkedIn account search.
+/// </summary>
+public class StatusFilter
 {
     /// <summary>
-    /// Filter object used with LinkedIn request.
+    /// Gets or sets the account status filter.
     /// </summary>
-    public class StatusFilter
-    {
-        /// <summary>
-        /// Account status filter.
-        /// </summary>
-        /// <example>AccountStatus.ACTIVE</example>
-        public AccountStatus AccountStatus { get; set; }
-    }
+    /// <example>AccountStatus.ACTIVE</example>
+    public AccountStatus AccountStatus { get; set; }
 }
