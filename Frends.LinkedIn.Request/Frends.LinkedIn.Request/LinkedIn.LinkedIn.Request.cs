@@ -1,4 +1,4 @@
-﻿namespace Frends.LinkedIn.Request
+namespace Frends.LinkedIn.Request
 {
     using System;
     using System.Collections.Generic;
@@ -32,47 +32,46 @@
         /// <param name="input">Input parameters.</param>
         /// <param name="options">Options parameters.</param>
         /// <param name="cancellationToken">Cancellation token given by Frends.</param>
-        /// <returns>Object { object Body, Dictionary&lt;string, string&gt; Headers, int StatusCode }</returns>
+        /// <returns>object { bool Success, object Body, Dictionary&lt;string, string&gt; Headers, int StatusCode, object Error }</returns>
         public static async Task<Result> Request([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
         {
-            var client = GetHttpClientForOptions(options);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
-
-            var headers = GetHeaderDictionary(input.Headers);
-
-            using var content = GetContent(input, headers);
-            using var responseMessage = await GetHttpRequestResponseAsync(
-                    client,
-                    input.Method.ToString(),
-                    input.Url,
-                    content,
-                    headers,
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            dynamic response;
-
-#if NET6_0
-            var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
-                .ReadAsStringAsync(cancellationToken)
-                .ConfigureAwait(false));
-#else
-            var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
-                .ReadAsStringAsync()
-                .ConfigureAwait(false));
-#endif
-
-            var rstatusCode = (int)responseMessage.StatusCode;
-            var rheaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
-            response = new Result(rbody, rheaders, rstatusCode);
-
-            if (!responseMessage.IsSuccessStatusCode && options.ThrowExceptionOnErrorResponse)
+            try
             {
-                throw new WebException(
-                    $"Request to '{input.Url}' failed with status code {(int)responseMessage.StatusCode}. Response body: {response.Body}");
-            }
+                var client = GetHttpClientForOptions(options);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
 
-            return response;
+                var headers = GetHeaderDictionary(input.Headers);
+
+                using var content = GetContent(input, headers);
+                using var responseMessage = await GetHttpRequestResponseAsync(
+                        client,
+                        input.Method.ToString(),
+                        input.Url,
+                        content,
+                        headers,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
+                    .ReadAsStringAsync(cancellationToken)
+                    .ConfigureAwait(false));
+
+                var rstatusCode = (int)responseMessage.StatusCode;
+                var rheaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
+                var response = new Result(rbody, rheaders, rstatusCode);
+
+                if (!responseMessage.IsSuccessStatusCode && options.ThrowExceptionOnErrorResponse)
+                {
+                    throw new WebException(
+                        $"Request to '{input.Url}' failed with status code {(int)responseMessage.StatusCode}. Response body: {response.Body}");
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ex.Handle(options);
+            }
         }
 
         private static IDictionary<string, string> GetHeaderDictionary(Header[] headers)

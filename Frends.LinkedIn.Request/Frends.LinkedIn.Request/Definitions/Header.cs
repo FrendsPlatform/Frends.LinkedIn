@@ -1,4 +1,4 @@
-﻿namespace Frends.LinkedIn.Request.Definitions
+namespace Frends.LinkedIn.Request.Definitions
 {
     /// <summary>
     /// Request header.
@@ -6,13 +6,15 @@
     public class Header
     {
         /// <summary>
-        /// Name of header.
+        /// Gets or sets the header name.
         /// </summary>
+        /// <example>X-Restli-Protocol-Version</example>
         public string Name { get; set; }
 
         /// <summary>
-        /// Value of header.
+        /// Gets or sets the header value.
         /// </summary>
+        /// <example>2.0.0</example>
         public string Value { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Frends.LinkedIn.Request
+namespace Frends.LinkedIn.Request
 {
     using System;
     using System.Net.Http;

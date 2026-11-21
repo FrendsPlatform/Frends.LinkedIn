@@ -9,14 +9,17 @@ using NUnit.Framework.Legacy;
 [TestFixture]
 internal class UnitTests
 {
-    private static Options _options;
+    private static Options options;
 
+    /// <summary>
+    /// Initializes options used by the tests.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
         var accessToken = Environment.GetEnvironmentVariable("Frends_LinkedIn_AccessToken");
 
-        _options = new Options
+        options = new Options
         {
             LinkedInAPIVersion = "202309",
             Token = accessToken,
@@ -29,6 +32,10 @@ internal class UnitTests
         };
     }
 
+    /// <summary>
+    /// Sends requests to LinkedIn and verifies successful responses.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test.</returns>
     [Test]
     public async Task Test()
     {
@@ -55,8 +62,35 @@ internal class UnitTests
                 Headers = Array.Empty<Header>(),
             };
 
-            var result = await LinkedIn.Request(input, _options, default);
+            var result = await LinkedIn.Request(input, options, default);
             ClassicAssert.AreEqual(200, result.StatusCode);
         }
+    }
+
+    [Test]
+    public void RequestFailureReturnsErrorWhenConfigured()
+    {
+        var exception = new InvalidOperationException("Request failed.");
+        var options = new Options
+        {
+            ThrowErrorOnFailure = false,
+            ErrorMessageOnFailure = "Custom message",
+        };
+
+        var result = exception.Handle(options);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Is.EqualTo("Custom message: Request failed."));
+        Assert.That(result.Error.AdditionalInfo, Is.SameAs(exception));
+    }
+
+    [Test]
+    public void RequestFailureThrowsWhenConfigured()
+    {
+        var exception = new InvalidOperationException("Request failed.");
+
+        var actual = Assert.Throws<InvalidOperationException>(() => exception.Handle(new Options()));
+
+        Assert.That(actual, Is.SameAs(exception));
     }
 }

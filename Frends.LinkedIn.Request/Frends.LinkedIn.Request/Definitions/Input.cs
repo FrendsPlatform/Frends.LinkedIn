@@ -1,4 +1,4 @@
-﻿namespace Frends.LinkedIn.Request.Definitions
+namespace Frends.LinkedIn.Request.Definitions
 {
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
@@ -18,7 +18,7 @@
         /// <summary>
         /// Something that will be repeated.
         /// </summary>
-        /// <example>Some example of the expected value.</example>
+        /// <example>https://api.linkedin.com/rest/adAccounts</example>
         [DisplayFormat(DataFormatString = "Text")]
         [DefaultValue("https://api.linkedin.com/rest/")]
         public string Url { get; set; }
@@ -33,7 +33,7 @@
         /// <summary>
         /// List of HTTP headers to be added to the request.
         /// </summary>
-        /// <example>Name: Header, Value: HeaderValue</example>
+        /// <example>Name: X-Restli-Protocol-Version, Value: 2.0.0</example>
         public Header[] Headers { get; set; }
     }
 }
