@@ -23,7 +23,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <AdditionalFiles Include="FrendsTaskMetadata.json" />
-        <AdditionalFiles Include="stylecop.json" />
     </ItemGroup>
 
     <ItemGroup>
