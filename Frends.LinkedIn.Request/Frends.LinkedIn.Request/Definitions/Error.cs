@@ -8,13 +8,13 @@ namespace Frends.LinkedIn.Request.Definitions
     public class Error
     {
         /// <summary>
-        /// Gets or sets the summary of the error.
+        /// Summary of the error.
         /// </summary>
         /// <example>LinkedIn request failed with status code 401</example>
         public string Message { get; set; }
 
         /// <summary>
-        /// Gets or sets additional information about the error.
+        /// Additional information about the error.
         /// </summary>
         /// <example>object { Exception AdditionalInfo }</example>
         public Exception AdditionalInfo { get; set; }

@@ -22,7 +22,7 @@ namespace Frends.LinkedIn.Request.Definitions
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the request completed successfully.
+        /// Whether the request completed successfully.
         /// </summary>
         /// <example>true</example>
         public bool Success { get; set; }
@@ -46,7 +46,7 @@ namespace Frends.LinkedIn.Request.Definitions
         public int StatusCode { get; private set; }
 
         /// <summary>
-        /// Gets or sets error details when the request fails.
+        /// Error details when the request fails.
         /// </summary>
         /// <example>null</example>
         public Error Error { get; set; }
