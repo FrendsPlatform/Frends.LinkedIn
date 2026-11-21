@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.0] - 2026-11-21
+### Changed
+- **[Breaking Change]** Reorganized task inputs to separate search parameters and LinkedIn connection details, and replaced the HTTP error toggle with standardized error options.
+- Updated the task to .NET 8 and added standardized success and error information to its result.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:
