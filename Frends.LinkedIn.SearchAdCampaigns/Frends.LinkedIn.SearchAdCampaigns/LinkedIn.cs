@@ -1,178 +1,150 @@
-﻿namespace Frends.LinkedIn.SearchAdCampaigns
+using System.ComponentModel;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
+using Frends.LinkedIn.SearchAdCampaigns.Definitions;
+using Frends.LinkedIn.SearchAdCampaigns.Helpers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace Frends.LinkedIn.SearchAdCampaigns;
+
+/// <summary>
+/// Main class of the Task.
+/// </summary>
+public static class LinkedIn
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Runtime.Caching;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Frends.LinkedIn.SearchAdCampaigns.Definitions;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+    internal static IHttpClientFactory ClientFactory { get; set; } = new HttpClientFactory();
 
     /// <summary>
-    /// Main class of the Task.
+    /// Frends Task for finding LinkedIn Campaigns using LinkedIn Rest API.
+    /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdCampaigns).
     /// </summary>
-    public static class LinkedIn
+    /// <param name="input">Essential parameters.</param>
+    /// <param name="connection">Connection parameters.</param>
+    /// <param name="options">Additional parameters.</param>
+    /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
+    /// <returns>object { bool Success, object Body, Dictionary(string, string) Headers, int StatusCode, object Error { string Message, Exception AdditionalInfo } }.</returns>
+    public static async Task<Result> SearchAdCampaigns(
+        [PropertyTab] Input input,
+        [PropertyTab] Connection connection,
+        [PropertyTab] Options options,
+        CancellationToken cancellationToken)
     {
-        private static readonly IHttpClientFactory ClientFactory = new HttpClientFactory();
-        private static readonly ObjectCache ClientCache = MemoryCache.Default;
-        private static readonly CacheItemPolicy CachePolicy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromHours(1) };
-
-        /// <summary>
-        /// Frends Task for finding LinkedIn Campaigns using LinkedIn Rest API.
-        /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdCampaigns).
-        /// </summary>
-        /// <param name="filter">Filter parameters.</param>
-        /// <param name="options">Options parameters.</param>
-        /// <param name="cancellationToken">Cancellation token given by Frends.</param>
-        /// <returns>Object { Object Body, Dictionary(string, string) Headers, int StatusCode }.</returns>
-        public static async Task<Result> SearchAdCampaigns([PropertyTab] Filter filter, [PropertyTab] Options options, CancellationToken cancellationToken)
+        try
         {
-            var uri = FormRequestURI(filter);
+            var uri = FormRequestURI(input);
 
-            var client = GetHttpClientForOptions(options);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
+            using var client = ClientFactory.CreateClient(options);
+            client.SetDefaultRequestHeadersBasedOnOptions(options);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
-            using var responseMessage = await GetHttpRequestResponseAsync(
-                    client,
-                    uri,
-                    cancellationToken)
+            using var responseMessage = await GetHttpRequestResponseAsync(client, uri, cancellationToken)
                 .ConfigureAwait(false);
 
-            dynamic response;
-
-#if NET6_0
-            var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
+            var body = TryParseRequestStringResultAsJToken(await responseMessage.Content
                 .ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false));
-#else
-            var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
-                .ReadAsStringAsync()
-                .ConfigureAwait(false));
-#endif
 
-            var rstatusCode = (int)responseMessage.StatusCode;
-            var rheaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
-            response = new Result(rbody, rheaders, rstatusCode);
+            var statusCode = (int)responseMessage.StatusCode;
 
-            if (!responseMessage.IsSuccessStatusCode && options.ThrowExceptionOnErrorResponse)
+            if (!responseMessage.IsSuccessStatusCode)
             {
                 throw new WebException(
-                    $"Request to '{uri}' failed with status code {(int)responseMessage.StatusCode}. Response body: {response.Body}");
+                    $"Request to '{uri}' failed with status code {statusCode}. Response body: {body}");
             }
 
-            return response;
-        }
-
-        private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(
-                HttpClient httpClient,
-                string url,
-                CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using var request = new HttpRequestMessage(new HttpMethod("GET"), new Uri(url));
-
-            HttpResponseMessage response;
-            try
+            return new Result
             {
-                response = await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
-            catch (TaskCanceledException canceledException)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    throw;
-
-                // Cancellation is from inside of the request, mostly likely a timeout
-                throw new ArgumentException("HttpRequest was canceled, most likely due to a timeout.", canceledException);
-            }
-
-            return response;
+                Success = true,
+                Body = body,
+                Headers = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers),
+                StatusCode = statusCode,
+                Error = null,
+            };
         }
-
-        private static object TryParseRequestStringResultAsJToken(string response)
+        catch (Exception ex)
         {
-            try
-            {
-                return string.IsNullOrWhiteSpace(response) ? new JValue(string.Empty) : JToken.Parse(response);
-            }
-            catch (JsonReaderException)
-            {
-                throw new JsonReaderException($"Unable to read response message as json: {response}");
-            }
+            return ex.Handle(options);
         }
+    }
 
-        private static Dictionary<string, string> GetResponseHeaderDictionary(HttpResponseHeaders responseMessageHeaders, HttpContentHeaders contentHeaders)
+    private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(
+        HttpClient httpClient,
+        string url,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
+
+        try
         {
-            var responseHeaders = responseMessageHeaders.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
-            var allHeaders = contentHeaders?.ToDictionary(h => h.Key, h => string.Join(";", h.Value)) ?? new Dictionary<string, string>();
-            responseHeaders.ToList().ForEach(x => allHeaders[x.Key] = x.Value);
-            return allHeaders;
+            return await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
-
-        private static HttpClient GetHttpClientForOptions(Options options)
+        catch (TaskCanceledException canceledException)
         {
-            var cacheKey = GetHttpClientCacheKey(options);
+            if (cancellationToken.IsCancellationRequested)
+                throw;
 
-            if (ClientCache.Get(cacheKey) is HttpClient httpClient)
-                return httpClient;
-
-            httpClient = ClientFactory.CreateClient(options);
-            httpClient.SetDefaultRequestHeadersBasedOnOptions(options);
-
-            ClientCache.Add(cacheKey, httpClient, CachePolicy);
-
-            return httpClient;
+            // Cancellation is from inside of the request, mostly likely a timeout
+            throw new ArgumentException("HttpRequest was canceled, most likely due to a timeout.", canceledException);
         }
+    }
 
-        private static string GetHttpClientCacheKey(Options options)
+    private static JToken TryParseRequestStringResultAsJToken(string response)
+    {
+        try
         {
-            // Includes everything except for options.Token, which is used on request level, not http client level
-            return $"{options.ConnectionTimeoutSeconds}"
-                   + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-                   + $":{options.ThrowExceptionOnErrorResponse}:{options.AutomaticCookieHandling}";
+            return string.IsNullOrWhiteSpace(response) ? new JValue(string.Empty) : JToken.Parse(response);
         }
-
-        private static string FormRequestURI(Filter options)
+        catch (JsonReaderException)
         {
-            var sb = new StringBuilder($"https://api.linkedin.com/rest/adAccounts/{options.AdAccountId}/adCampaigns");
-
-            sb.Append("?q=search&search=(");
-
-            var dict = new Dictionary<string, List<string>>();
-
-            if (!string.IsNullOrEmpty(options.Id))
-                dict["id"] = new List<string> { options.Id };
-
-            if (!string.IsNullOrEmpty(options.Name))
-                dict["name"] = new List<string> { options.Name };
-
-            if (!string.IsNullOrEmpty(options.Reference))
-                dict["reference"] = new List<string> { options.Reference };
-
-            var typeFilters = options.TypeFilters != null ? options.TypeFilters.Select(x => x.CampaignType.ToString()).ToList() : new List<string>();
-            if (typeFilters.Any())
-                dict["type"] = typeFilters;
-
-            var statusFilters = options.StatusFilters != null ? options.StatusFilters.Select(x => x.CampaignStatus.ToString()).ToList() : new List<string>();
-            if (statusFilters.Any())
-                dict["status"] = statusFilters;
-
-            foreach (var obj in dict)
-                sb.Append($"{obj.Key}:(values:List({string.Join(",", obj.Value)})),");
-
-            if (sb.ToString().EndsWith(","))
-                sb.Remove(sb.Length - 1, 1);
-
-            sb.Append(')');
-
-            return sb.ToString();
+            throw new JsonReaderException($"Unable to read response message as json: {response}");
         }
+    }
+
+    private static Dictionary<string, string> GetResponseHeaderDictionary(HttpResponseHeaders responseMessageHeaders, HttpContentHeaders contentHeaders)
+    {
+        var responseHeaders = responseMessageHeaders.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
+        var allHeaders = contentHeaders?.ToDictionary(h => h.Key, h => string.Join(";", h.Value)) ?? new Dictionary<string, string>();
+        responseHeaders.ToList().ForEach(x => allHeaders[x.Key] = x.Value);
+        return allHeaders;
+    }
+
+    private static string FormRequestURI(Input input)
+    {
+        var sb = new StringBuilder($"https://api.linkedin.com/rest/adAccounts/{input.AdAccountId}/adCampaigns");
+
+        sb.Append("?q=search&search=(");
+
+        var dict = new Dictionary<string, List<string>>();
+
+        if (!string.IsNullOrEmpty(input.Id))
+            dict["id"] = new List<string> { input.Id };
+
+        if (!string.IsNullOrEmpty(input.Name))
+            dict["name"] = new List<string> { input.Name };
+
+        if (!string.IsNullOrEmpty(input.Reference))
+            dict["reference"] = new List<string> { input.Reference };
+
+        var typeFilters = input.TypeFilters != null ? input.TypeFilters.Select(x => x.CampaignType.ToString()).ToList() : new List<string>();
+        if (typeFilters.Count > 0)
+            dict["type"] = typeFilters;
+
+        var statusFilters = input.StatusFilters != null ? input.StatusFilters.Select(x => x.CampaignStatus.ToString()).ToList() : new List<string>();
+        if (statusFilters.Count > 0)
+            dict["status"] = statusFilters;
+
+        foreach (var obj in dict)
+            sb.Append($"{obj.Key}:(values:List({string.Join(",", obj.Value)})),");
+
+        if (sb.ToString().EndsWith(','))
+            sb.Remove(sb.Length - 1, 1);
+
+        sb.Append(')');
+
+        return sb.ToString();
     }
 }
