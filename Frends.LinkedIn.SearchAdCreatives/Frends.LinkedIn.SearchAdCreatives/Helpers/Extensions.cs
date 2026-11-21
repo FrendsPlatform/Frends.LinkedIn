@@ -1,8 +1,6 @@
-using System;
-using System.Net.Http;
 using Frends.LinkedIn.SearchAdCreatives.Definitions;
 
-namespace Frends.LinkedIn.SearchAdCreatives;
+namespace Frends.LinkedIn.SearchAdCreatives.Helpers;
 
 internal static class Extensions
 {

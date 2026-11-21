@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Frends.LinkedIn.SearchAdCreatives;
 using Frends.LinkedIn.SearchAdCreatives.Definitions;
+using Frends.LinkedIn.SearchAdCreatives.Helpers;
 using NUnit.Framework;
 
 namespace Frends.LinkedIn.SearchAdCreatives.Tests;
@@ -42,8 +43,8 @@ internal class UnitTests
             AutomaticCookieHandling = true,
             FollowRedirects = true,
         };
-        factory = new MockHttpClientFactory(
-            (_, _) => Task.FromResult(CreateResponse(HttpStatusCode.OK, """{"elements":[]}""")));
+        factory = new MockHttpClientFactory((_, _) =>
+            Task.FromResult(CreateResponse(HttpStatusCode.OK, """{"elements":[]}""")));
         LinkedIn.ClientFactory = factory;
     }
 
@@ -116,8 +117,8 @@ internal class UnitTests
     public async Task SearchReturnsFailureForUnsuccessfulResponseWhenConfigured()
     {
         options.ThrowExceptionOnErrorResponse = true;
-        factory = new MockHttpClientFactory(
-            (_, _) => Task.FromResult(CreateResponse(HttpStatusCode.NotFound, """{"message":"missing"}""")));
+        factory = new MockHttpClientFactory((_, _) =>
+            Task.FromResult(CreateResponse(HttpStatusCode.NotFound, """{"message":"missing"}""")));
         LinkedIn.ClientFactory = factory;
 
         var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
@@ -133,8 +134,7 @@ internal class UnitTests
     [Test]
     public async Task SearchReturnsFailureForMalformedJson()
     {
-        factory = new MockHttpClientFactory(
-            (_, _) => Task.FromResult(CreateResponse(HttpStatusCode.OK, "not json")));
+        factory = new MockHttpClientFactory((_, _) => Task.FromResult(CreateResponse(HttpStatusCode.OK, "not json")));
         LinkedIn.ClientFactory = factory;
 
         var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
@@ -149,8 +149,8 @@ internal class UnitTests
     [Test]
     public async Task SearchReturnsFailureForRequestTimeout()
     {
-        factory = new MockHttpClientFactory(
-            (_, _) => Task.FromException<HttpResponseMessage>(new TaskCanceledException("request timed out")));
+        factory = new MockHttpClientFactory((_, _) =>
+            Task.FromException<HttpResponseMessage>(new TaskCanceledException("request timed out")));
         LinkedIn.ClientFactory = factory;
 
         var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
@@ -163,16 +163,15 @@ internal class UnitTests
     /// Verifies that configured errors are thrown with the custom message.
     /// </summary>
     [Test]
-    public void SearchThrowsConfiguredError()
+    public async Task SearchThrowsConfiguredError()
     {
         options.ThrowErrorOnFailure = true;
         options.ErrorMessageOnFailure = "Creative search failed";
-        factory = new MockHttpClientFactory(
-            (_, _) => Task.FromResult(CreateResponse(HttpStatusCode.OK, "not json")));
+        factory = new MockHttpClientFactory((_, _) => Task.FromResult(CreateResponse(HttpStatusCode.OK, "not json")));
         LinkedIn.ClientFactory = factory;
 
-        var exception = Assert.ThrowsAsync<Exception>(
-            async () => await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default));
+        var exception = await Assert.ThrowsAsync<Exception>(async () =>
+            await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default));
 
         Assert.That(exception.Message, Is.EqualTo("Creative search failed"));
     }
@@ -181,17 +180,16 @@ internal class UnitTests
     /// Verifies that cancellation requested by Frends is propagated.
     /// </summary>
     [Test]
-    public void SearchPropagatesCancellation()
+    public async Task SearchPropagatesCancellation()
     {
         using var cancellationSource = new CancellationTokenSource();
         cancellationSource.Cancel();
 
-        Assert.ThrowsAsync<OperationCanceledException>(
-            async () => await LinkedIn.SearchAdCreatives(
-                input,
-                CreateConnection(),
-                options,
-                cancellationSource.Token));
+        await Assert.ThrowsAsync<OperationCanceledException>(async () => await LinkedIn.SearchAdCreatives(
+            input,
+            CreateConnection(),
+            options,
+            cancellationSource.Token));
     }
 
     /// <summary>
