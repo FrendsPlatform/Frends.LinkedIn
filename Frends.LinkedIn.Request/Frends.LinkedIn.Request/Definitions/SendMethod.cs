@@ -1,28 +1,27 @@
-namespace Frends.LinkedIn.Request.Definitions
+namespace Frends.LinkedIn.Request.Definitions;
+
+/// <summary>
+/// Allowed methods for sending content
+/// </summary>
+public enum SendMethod
 {
     /// <summary>
-    /// Allowed methods for sending content
+    /// POST Request.
     /// </summary>
-    public enum SendMethod
-    {
-        /// <summary>
-        /// POST Request.
-        /// </summary>
-        POST,
+    POST,
 
-        /// <summary>
-        /// PUT Request.
-        /// </summary>
-        PUT,
+    /// <summary>
+    /// PUT Request.
+    /// </summary>
+    PUT,
 
-        /// <summary>
-        /// PATCH Request.
-        /// </summary>
-        PATCH,
+    /// <summary>
+    /// PATCH Request.
+    /// </summary>
+    PATCH,
 
-        /// <summary>
-        /// DELETE Request.
-        /// </summary>
-        DELETE,
-    }
+    /// <summary>
+    /// DELETE Request.
+    /// </summary>
+    DELETE,
 }

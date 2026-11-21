@@ -2,7 +2,7 @@
 
 ## [1.2.0] - 2026-11-21
 ### Changed
-- Added configurable handling for failed LinkedIn requests and updated the task to target .NET 8.
+- Updated the task to target .NET 8.
 
 ## [1.1.0] - 2025-03-18
 ### Changed
