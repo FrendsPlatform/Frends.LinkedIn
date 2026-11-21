@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -41,12 +41,11 @@ public static class LinkedIn
         [PropertyTab] Options options,
         CancellationToken cancellationToken)
     {
-        string uri;
         Result result;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            uri = FormRequestURI(input);
+            var uri = FormRequestURI(input);
             var client = GetHttpClientForOptions(options);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
@@ -67,17 +66,6 @@ public static class LinkedIn
         catch (Exception exception)
         {
             return exception.Handle(options);
-        }
-
-        if (!result.Success)
-        {
-            var exception = new WebException(
-                $"Request to '{uri}' failed with status code {result.StatusCode}. Response body: {result.Body}");
-            var failure = exception.Handle(options);
-            failure.Body = result.Body;
-            failure.Headers = result.Headers;
-            failure.StatusCode = result.StatusCode;
-            return failure;
         }
 
         return result;

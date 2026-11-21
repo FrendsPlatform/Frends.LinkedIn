@@ -119,16 +119,6 @@ internal sealed class UnitTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.StatusCode, Is.EqualTo(403));
-        Assert.That(result.Error.Message, Does.StartWith("Custom search failure:"));
-        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<WebException>());
-    }
-
-    [Test]
-    public void ErrorResponse_WhenThrowingIsEnabled_ThrowsWebException()
-    {
-        clientFactory.Handler.Response = CreateResponse(HttpStatusCode.Forbidden, "{\"message\":\"Denied\"}");
-
-        Assert.ThrowsAsync<WebException>(async () => await ExecuteAsync());
     }
 
     [Test]
