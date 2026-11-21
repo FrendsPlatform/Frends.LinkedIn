@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.0] - 2026-11-21
+### Changed
+- **[Breaking Change]** Updated the task to .NET 8 and separated the LinkedIn access token into connection settings.
+- **[Breaking Change]** Updated the task inputs to use the standard Input, Connection, and Options parameters.
+- Added structured success and error details to the task result.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:

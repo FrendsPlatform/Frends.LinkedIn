@@ -1,186 +1,174 @@
-﻿namespace Frends.LinkedIn.SearchAdCreatives
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Runtime.Caching;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web;
+using Frends.LinkedIn.SearchAdCreatives.Definitions;
+using Frends.LinkedIn.SearchAdCreatives.Helpers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace Frends.LinkedIn.SearchAdCreatives;
+
+/// <summary>
+/// LinkedIn ad creative search task.
+/// </summary>
+public static class LinkedIn
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Runtime.Caching;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Web;
-    using Frends.LinkedIn.SearchAdCreatives.Definitions;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+    private static readonly ObjectCache ClientCache = MemoryCache.Default;
+    private static readonly CacheItemPolicy CachePolicy = new() { SlidingExpiration = TimeSpan.FromHours(1) };
+
+    internal static IHttpClientFactory ClientFactory { get; set; } = new HttpClientFactory();
 
     /// <summary>
-    /// Main class of the Task.
+    /// Searches for LinkedIn ad creatives.
+    /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdCreatives).
     /// </summary>
-    public static class LinkedIn
+    /// <param name="input">Search criteria.</param>
+    /// <param name="connection">LinkedIn authentication parameters.</param>
+    /// <param name="options">Additional request and error-handling options.</param>
+    /// <param name="cancellationToken">Cancellation token provided by Frends.</param>
+    /// <returns>object { bool Success, object Body, Dictionary(string, string) Headers, int StatusCode, object Error { string Message, Exception AdditionalInfo } }</returns>
+    public static async Task<Result> SearchAdCreatives(
+        [PropertyTab] Input input,
+        [PropertyTab] Connection connection,
+        [PropertyTab] Options options,
+        CancellationToken cancellationToken)
     {
-        private static readonly IHttpClientFactory ClientFactory = new HttpClientFactory();
-        private static readonly ObjectCache ClientCache = MemoryCache.Default;
-        private static readonly CacheItemPolicy CachePolicy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromHours(1) };
-
-        /// <summary>
-        /// Frends Task for searching AdCreatives from LinkedInAds.
-        /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdCreatives).
-        /// </summary>
-        /// <param name="filter">Filter parameters.</param>
-        /// <param name="options">Options parameters.</param>
-        /// <param name="cancellationToken">Cancellation token given by Frends.</param>
-        /// <returns>Object { object body, Dictionary(string, string) Headers, int statusCode }.</returns>
-        public static async Task<Result> SearchAdCreatives([PropertyTab] Filter filter, [PropertyTab] Options options, CancellationToken cancellationToken)
+        try
         {
-            var uri = FormRequestURI(filter);
+            var uri = FormRequestURI(input);
+            var client = GetHttpClientForOptions(options, input.GetSingleCreative);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
-            var client = GetHttpClientForOptions(options, filter.GetSingleCreative);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
-
-            using var responseMessage = await GetHttpRequestResponseAsync(
-                    client,
-                    uri,
-                    cancellationToken)
+            using var responseMessage = await GetHttpRequestResponseAsync(client, uri, cancellationToken)
                 .ConfigureAwait(false);
-
-            dynamic response;
-
-#if NET6_0
-            var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
-                .ReadAsStringAsync(cancellationToken)
-                .ConfigureAwait(false));
-#else
-            var rbody = TryParseRequestStringResultAsJToken(await responseMessage.Content
-                .ReadAsStringAsync()
-                .ConfigureAwait(false));
-#endif
-
-            var rstatusCode = (int)responseMessage.StatusCode;
-            var rheaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
-            response = new Result(rbody, rheaders, rstatusCode);
+            var responseBody = TryParseRequestStringResultAsJToken(
+                await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
+            var responseHeaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
+            var result = new Result
+            {
+                Success = true,
+                Body = responseBody,
+                Headers = responseHeaders,
+                StatusCode = (int)responseMessage.StatusCode,
+                Error = null,
+            };
 
             if (!responseMessage.IsSuccessStatusCode && options.ThrowExceptionOnErrorResponse)
             {
                 throw new WebException(
-                    $"Request to '{uri}' failed with status code {(int)responseMessage.StatusCode}. Response body: {response.Body}");
+                    $"Request to '{uri}' failed with status code {(int)responseMessage.StatusCode}. Response body: {result.Body}");
             }
 
-            return response;
+            return result;
         }
-
-        private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(
-                HttpClient httpClient,
-                string url,
-                CancellationToken cancellationToken)
+        catch (Exception exception)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using var request = new HttpRequestMessage(new HttpMethod("GET"), new Uri(url));
-
-            HttpResponseMessage response;
-            try
-            {
-                response = await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
-            catch (TaskCanceledException canceledException)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    throw;
-
-                // Cancellation is from inside of the request, mostly likely a timeout
-                throw new ArgumentException("HttpRequest was canceled, most likely due to a timeout.", canceledException);
-            }
-
-            return response;
+            return exception.Handle(options);
         }
+    }
 
-        private static object TryParseRequestStringResultAsJToken(string response)
+    private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(
+        HttpClient httpClient,
+        string url,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
+        try
         {
-            try
-            {
-                return string.IsNullOrWhiteSpace(response) ? new JValue(string.Empty) : JToken.Parse(response);
-            }
-            catch (JsonReaderException)
-            {
-                throw new JsonReaderException($"Unable to read response message as json: {response}");
-            }
+            return await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
-
-        private static Dictionary<string, string> GetResponseHeaderDictionary(HttpResponseHeaders responseMessageHeaders, HttpContentHeaders contentHeaders)
+        catch (TaskCanceledException canceledException)
         {
-            var responseHeaders = responseMessageHeaders.ToDictionary(h => h.Key, h => string.Join(";", h.Value));
-            var allHeaders = contentHeaders?.ToDictionary(h => h.Key, h => string.Join(";", h.Value)) ?? new Dictionary<string, string>();
-            responseHeaders.ToList().ForEach(x => allHeaders[x.Key] = x.Value);
-            return allHeaders;
-        }
+            if (cancellationToken.IsCancellationRequested)
+                throw;
 
-        private static HttpClient GetHttpClientForOptions(Options options, bool getSingleCreative)
+            throw new ArgumentException("HttpRequest was canceled, most likely due to a timeout.", canceledException);
+        }
+    }
+
+    private static object TryParseRequestStringResultAsJToken(string response)
+    {
+        try
         {
-            var cacheKey = GetHttpClientCacheKey(options);
-
-            if (ClientCache.Get(cacheKey) is HttpClient httpClient)
-                return httpClient;
-
-            httpClient = ClientFactory.CreateClient(options);
-            httpClient.SetDefaultRequestHeadersBasedOnOptions(options, getSingleCreative);
-
-            ClientCache.Add(cacheKey, httpClient, CachePolicy);
-
-            return httpClient;
+            return string.IsNullOrWhiteSpace(response) ? new JValue(string.Empty) : JToken.Parse(response);
         }
-
-        private static string GetHttpClientCacheKey(Options options)
+        catch (JsonReaderException)
         {
-            // Includes everything except for options.Token, which is used on request level, not http client level
-            return $"{options.ConnectionTimeoutSeconds}"
-                   + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-                   + $":{options.ThrowExceptionOnErrorResponse}:{options.AutomaticCookieHandling}";
+            throw new JsonReaderException($"Unable to read response message as json: {response}");
         }
+    }
 
-        private static string FormRequestURI(Filter filter)
+    private static Dictionary<string, string> GetResponseHeaderDictionary(
+        HttpResponseHeaders responseMessageHeaders,
+        HttpContentHeaders contentHeaders)
+    {
+        var allHeaders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var header in contentHeaders)
+            allHeaders[header.Key] = string.Join(";", header.Value);
+
+        foreach (var header in responseMessageHeaders)
+            allHeaders[header.Key] = string.Join(";", header.Value);
+
+        return allHeaders;
+    }
+
+    private static HttpClient GetHttpClientForOptions(Options options, bool getSingleCreative)
+    {
+        var cacheKey = GetHttpClientCacheKey(options);
+
+        if (ClientCache.Get(cacheKey) is HttpClient cachedClient)
+            return cachedClient;
+
+        var httpClient = ClientFactory.CreateClient(options);
+        httpClient.SetDefaultRequestHeadersBasedOnOptions(options, getSingleCreative);
+        ClientCache.Add(cacheKey, httpClient, CachePolicy);
+        return httpClient;
+    }
+
+    private static string GetHttpClientCacheKey(Options options)
+    {
+        return $"{options.ConnectionTimeoutSeconds}"
+               + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
+               + $":{options.ThrowExceptionOnErrorResponse}:{options.AutomaticCookieHandling}:{options.LinkedInAPIVersion}";
+    }
+
+    private static string FormRequestURI(Input input)
+    {
+        var builder = new StringBuilder($"https://api.linkedin.com/rest/adAccounts/{input.AdAccountId}/creatives");
+
+        if (input.GetSingleCreative)
         {
-            var sb = new StringBuilder($"https://api.linkedin.com/rest/adAccounts/{filter.AdAccountId}/creatives");
-
-            if (filter.GetSingleCreative)
-            {
-#if NET471
-                var urn = WebUtility.UrlEncode(filter.AdCreativeUrn);
-#else
-                var urn = HttpUtility.UrlEncode(filter.AdCreativeUrn);
-#endif
-                sb.Append($"/{urn}");
-            }
-            else
-            {
-                sb.Append('?');
-
-#if NET471
-                var campaigns = filter.AdCampaignUrns != null ? filter.AdCampaignUrns.Select(x => WebUtility.UrlEncode(x.AdCampaignUrn.ToString())).ToList() : new List<string>();
-#else
-                var campaigns = filter.AdCampaignUrns != null ? filter.AdCampaignUrns.Select(x => HttpUtility.UrlEncode(x.AdCampaignUrn.ToString())).ToList() : new List<string>();
-#endif
-                if (campaigns.Any())
-                {
-                    sb.Append($"campaigns=List({string.Join(",", campaigns)})&");
-                }
-
-#if NET471
-                var creatives = filter.AdCreativesUrns != null ? filter.AdCreativesUrns.Select(x => WebUtility.UrlEncode(x.AdCreativeUrn.ToString())).ToList() : new List<string>();
-#else
-                var creatives = filter.AdCreativesUrns != null ? filter.AdCreativesUrns.Select(x => HttpUtility.UrlEncode(x.AdCreativeUrn.ToString())).ToList() : new List<string>();
-#endif
-                if (creatives.Any())
-                {
-                    sb.Append($"creatives=List({string.Join(",", creatives)})&");
-                }
-
-                sb.Append("q=criteria");
-            }
-
-            return sb.ToString();
+            builder.Append($"/{HttpUtility.UrlEncode(input.AdCreativeUrn)}");
         }
+        else
+        {
+            builder.Append('?');
+            var campaigns = input.AdCampaignUrns?
+                .Select(campaign => HttpUtility.UrlEncode(campaign.AdCampaignUrn))
+                .ToList() ?? new List<string>();
+            if (campaigns.Any())
+                builder.Append($"campaigns=List({string.Join(",", campaigns)})&");
+
+            var creatives = input.AdCreativesUrns?
+                .Select(creative => HttpUtility.UrlEncode(creative.AdCreativeUrn))
+                .ToList() ?? new List<string>();
+            if (creatives.Any())
+                builder.Append($"creatives=List({string.Join(",", creatives)})&");
+
+            builder.Append("q=criteria");
+        }
+
+        return builder.ToString();
     }
 }
