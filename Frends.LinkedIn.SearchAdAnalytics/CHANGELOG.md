@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.0] - 2026-11-21
+### Changed
+- **[Breaking Change]** Updated the task input parameter to `Input`, moved the task to .NET 8, and added success and error details to the result.
+- Added `ThrowErrorOnFailure` and `ErrorMessageOnFailure` options for execution exceptions; HTTP status-code throwing remains controlled by `ThrowExceptionOnErrorResponse`.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:

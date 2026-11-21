@@ -1,5 +1,7 @@
-﻿namespace Frends.LinkedIn.SearchAdAnalytics.Definitions
-{
+// Copyright (c) Frends. All rights reserved.
+
+namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
+
     /// <summary>
     /// Specifies the Finder used in the request.
     /// </summary>
@@ -14,5 +16,4 @@
         /// Analytics finder is used when specifying a single pivot.
         /// </summary>
         Analytics,
-    }
 }

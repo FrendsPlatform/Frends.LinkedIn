@@ -1,7 +1,9 @@
-﻿namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
+// Copyright (c) Frends. All rights reserved.
 
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+
+namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
 
 /// <summary>
 /// Options parameter.
@@ -9,59 +11,74 @@ using System.ComponentModel.DataAnnotations;
 public class Options
 {
     /// <summary>
-    /// Version of the API used in the request.
-    /// API versions should have date format as YYYYMM or YYYYMM.RR where RR is the revision.
-    /// More information: https://learn.microsoft.com/en-us/linkedin/marketing/versioning?view=li-lms-2023-09
+    /// Gets or sets the API version used in the request. API versions use the YYYYMM or YYYYMM.RR format.
+    /// See https://learn.microsoft.com/en-us/linkedin/marketing/versioning?view=li-lms-2023-09.
     /// </summary>
-    /// <example>202309</example>
+    /// <example><c>202309</c>.</example>
     [DefaultValue("202309")]
     [DisplayFormat(DataFormatString = "Text")]
     public string LinkedInAPIVersion { get; set; }
 
     /// <summary>
-    /// Bearer token to be used for requests. Token will be added as Authorization header.
+    /// Gets or sets the access token used for requests. The token is added as an Authorization header.
     /// </summary>
-    /// <example>xRqjX_9QXZlvRL6HZHJvbrubhvceV4NFccANh6RwndmAJDkPfP...</example>
+    /// <example><c>sample-access-token</c>.</example>
     [PasswordPropertyText]
     [DisplayFormat(DataFormatString = "Text")]
     public string Token { get; set; }
 
     /// <summary>
-    /// Timeout in seconds to be used for the connection and operation.
+    /// Gets or sets the connection and operation timeout, in seconds.
     /// </summary>
-    /// <example>30</example>
+    /// <example><c>30</c>.</example>
     [DefaultValue(30)]
     public int ConnectionTimeoutSeconds { get; set; }
 
     /// <summary>
-    /// If FollowRedirects is set to false, all responses with an HTTP status code from 300 to 399 is returned to the application.
+    /// Gets or sets a value indicating whether to follow redirects. When false, responses with a 3xx status code are
+    /// returned to the application.
     /// </summary>
-    /// <example>true</example>
+    /// <example><c>true</c>.</example>
     [DefaultValue(true)]
     public bool FollowRedirects { get; set; }
 
     /// <summary>
-    /// Do not throw an exception on certificate error.
+    /// Gets or sets a value indicating whether to ignore certificate errors.
     /// </summary>
-    /// <example>true</example>
+    /// <example><c>true</c>.</example>
     public bool AllowInvalidCertificate { get; set; }
 
     /// <summary>
-    /// Some Api's return faulty content-type charset header. This setting overrides the returned charset.
+    /// Gets or sets a value indicating whether to override a faulty response content-type charset.
     /// </summary>
-    /// <example>true</example>
+    /// <example><c>true</c>.</example>
     public bool AllowInvalidResponseContentTypeCharSet { get; set; }
 
     /// <summary>
-    /// Throw exception if return code of request is not successfull.
+    /// Gets or sets a value indicating whether to throw an exception when the request returns a non-success status code.
     /// </summary>
-    /// <example>true</example>
+    /// <example><c>true</c>.</example>
     public bool ThrowExceptionOnErrorResponse { get; set; }
 
     /// <summary>
-    /// If set to false, cookies must be handled manually. Defaults to true.
+    /// Gets or sets a value indicating whether to handle cookies automatically. Defaults to true.
     /// </summary>
-    /// <example>true</example>
+    /// <example><c>true</c>.</example>
     [DefaultValue(true)]
     public bool AutomaticCookieHandling { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to throw an error when the task fails.
+    /// </summary>
+    /// <example><c>true</c>.</example>
+    [DefaultValue(true)]
+    public bool ThrowErrorOnFailure { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the error message to use when the task fails.
+    /// </summary>
+    /// <example><c>LinkedIn ad analytics request failed.</c>.</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string ErrorMessageOnFailure { get; set; } = string.Empty;
 }

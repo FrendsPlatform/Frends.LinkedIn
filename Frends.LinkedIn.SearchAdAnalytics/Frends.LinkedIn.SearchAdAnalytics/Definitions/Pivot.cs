@@ -1,5 +1,7 @@
-﻿namespace Frends.LinkedIn.SearchAdAnalytics.Definitions
-{
+// Copyright (c) Frends. All rights reserved.
+
+namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
+
     /// <summary>
     /// Pivot of results, by which each report data point is grouped.
     /// </summary>
@@ -114,5 +116,4 @@
         /// Group results by the device type the ad made an impression on. Reach metrics and conversion metrics will not be available when this pivot is used.
         /// </summary>
         IMPRESSION_DEVICE_TYPE,
-    }
 }

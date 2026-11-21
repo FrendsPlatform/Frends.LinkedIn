@@ -1,5 +1,7 @@
-﻿namespace Frends.LinkedIn.SearchAdAnalytics.Definitions
-{
+// Copyright (c) Frends. All rights reserved.
+
+namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
+
     /// <summary>
     /// Time granularity of results.
     /// </summary>
@@ -24,5 +26,4 @@
         /// Results grouped by year.
         /// </summary>
         YEARLY,
-    }
 }
