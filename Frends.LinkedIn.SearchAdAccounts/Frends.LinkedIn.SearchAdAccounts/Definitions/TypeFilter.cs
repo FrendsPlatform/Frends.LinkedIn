@@ -1,6 +1,3 @@
-// <copyright file="TypeFilter.cs" company="Frends">
-// Copyright (c) Frends. All rights reserved.
-// </copyright>
 namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
 
 /// <summary>

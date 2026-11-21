@@ -1,6 +1,3 @@
-// <copyright file="LinkedIn.cs" company="Frends">
-// Copyright (c) Frends. All rights reserved.
-// </copyright>
 global using System.ComponentModel;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Net;

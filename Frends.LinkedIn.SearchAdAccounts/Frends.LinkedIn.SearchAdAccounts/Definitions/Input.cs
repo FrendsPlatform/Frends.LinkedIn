@@ -1,6 +1,3 @@
-// <copyright file="Input.cs" company="Frends">
-// Copyright (c) Frends. All rights reserved.
-// </copyright>
 global using System.ComponentModel;
 global using System.ComponentModel.DataAnnotations;
 

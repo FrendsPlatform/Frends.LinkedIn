@@ -1,7 +1,3 @@
-// <copyright file="ErrorHandler.cs" company="Frends">
-// Copyright (c) Frends. All rights reserved.
-// </copyright>
-
 namespace Frends.LinkedIn.SearchAdAccounts.Helpers;
 
 /// <summary>

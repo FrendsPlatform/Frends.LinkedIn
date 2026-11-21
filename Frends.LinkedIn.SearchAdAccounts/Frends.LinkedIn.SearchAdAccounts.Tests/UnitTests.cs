@@ -1,6 +1,3 @@
-// <copyright file="UnitTests.cs" company="Frends">
-// Copyright (c) Frends. All rights reserved.
-// </copyright>
 global using System.Net;
 global using System.Text;
 global using Frends.LinkedIn.SearchAdAccounts.Definitions;
@@ -8,6 +5,7 @@ global using Newtonsoft.Json;
 global using NUnit.Framework;
 global using NUnit.Framework.Legacy;
 global using LinkedInHttpClientFactory = Frends.LinkedIn.SearchAdAccounts.Definitions.IHttpClientFactory;
+using Frends.LinkedIn.SearchAdAccounts.Helpers;
 
 namespace Frends.LinkedIn.SearchAdAccounts.Tests;
 

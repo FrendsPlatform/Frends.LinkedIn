@@ -28,7 +28,3 @@ Run the tests
 ### Create a NuGet package
 
 `dotnet pack --configuration Release`
-
-### Third party licenses
-
-StyleCop.Analyzers version 1.2.0-beta.556 used to analyze code uses Apache-2.0 license, full text and source code can be found in https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/README.md
