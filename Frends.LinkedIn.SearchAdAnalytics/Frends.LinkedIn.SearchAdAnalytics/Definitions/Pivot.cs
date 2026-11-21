@@ -1,5 +1,3 @@
-// Copyright (c) Frends. All rights reserved.
-
 namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
 
 /// <summary>

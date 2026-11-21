@@ -1,5 +1,3 @@
-// Copyright (c) Frends. All rights reserved.
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,11 +39,9 @@ public static class LinkedIn
     /// <returns>Object { bool Success, object Body, Dictionary(string, string) Headers, int StatusCode, Error Error }.</returns>
     public static async Task<Result> SearchAdAnalytics([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
-        string uri;
-        Result response;
         try
         {
-            uri = FormRequestURI(input);
+            var uri = FormRequestURI(input);
 
             var client = GetHttpClientForOptions(options);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
@@ -67,7 +63,7 @@ public static class LinkedIn
                 errorMessage = $"{options.ErrorMessageOnFailure}: {errorMessage}";
             }
 
-            response = new Result
+            return new Result
             {
                 Success = responseMessage.IsSuccessStatusCode,
                 Body = responseBody,
@@ -82,14 +78,6 @@ public static class LinkedIn
         {
             return exception.Handle(options);
         }
-
-        if (!response.Success && options.ThrowExceptionOnErrorResponse)
-        {
-            throw new WebException(
-                $"Request to '{uri}' failed with status code {response.StatusCode}. Response body: {response.Body}");
-        }
-
-        return response;
     }
 
     private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(
@@ -162,7 +150,7 @@ public static class LinkedIn
         // Includes everything except for options.Token, which is used on request level, not http client level
         return $"{options.ConnectionTimeoutSeconds}"
                 + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-                + $":{options.ThrowExceptionOnErrorResponse}:{options.AutomaticCookieHandling}";
+                + $":{options.AutomaticCookieHandling}";
     }
 
     private static string FormRequestURI(Input input)

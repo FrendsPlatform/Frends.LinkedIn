@@ -1,5 +1,3 @@
-// Copyright (c) Frends. All rights reserved.
-
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -53,12 +51,6 @@ public class Options
     /// </summary>
     /// <example><c>true</c>.</example>
     public bool AllowInvalidResponseContentTypeCharSet { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether to throw an exception when the request returns a non-success status code.
-    /// </summary>
-    /// <example><c>true</c>.</example>
-    public bool ThrowExceptionOnErrorResponse { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to handle cookies automatically. Defaults to true.

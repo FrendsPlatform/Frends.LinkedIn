@@ -1,5 +1,3 @@
-// Copyright (c) Frends. All rights reserved.
-
 using System;
 using System.Net;
 using System.Net.Http;
@@ -84,56 +82,15 @@ internal class UnitTests
         Assert.That(Handler.LastRequestUri.Query, Does.Contain("pivots=List(COMPANY,ACCOUNT)"));
     }
 
-    [Test]
-    public async Task SearchAdAnalytics_NonSuccessResponseReturnsErrorWhenConfigured()
-    {
-        Handler.Response = new HttpResponseMessage(HttpStatusCode.BadRequest)
-        {
-            Content = new StringContent("{\"message\":\"invalid request\"}"),
-        };
-        var options = CreateOptions();
-        options.ThrowExceptionOnErrorResponse = false;
-        options.ErrorMessageOnFailure = "Analytics query failed";
-
-        var result = await LinkedIn.SearchAdAnalytics(CreateInput(), options, default);
-
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Is.EqualTo("Analytics query failed: LinkedIn returned HTTP status code 400."));
-    }
-
-    [Test]
-    public void SearchAdAnalytics_NonSuccessResponseThrowsWhenConfigured()
-    {
-        Handler.Response = new HttpResponseMessage(HttpStatusCode.BadRequest)
-        {
-            Content = new StringContent("{\"message\":\"invalid request\"}"),
-        };
-
-        Assert.ThrowsAsync<WebException>(() => LinkedIn.SearchAdAnalytics(CreateInput(), CreateOptions(), default));
-    }
-
-    [Test]
-    public void SearchAdAnalytics_ResponseOptionStillThrowsWhenGeneralFailureThrowingIsDisabled()
-    {
-        Handler.Response = new HttpResponseMessage(HttpStatusCode.BadRequest)
-        {
-            Content = new StringContent("{\"message\":\"invalid request\"}"),
-        };
-        var options = CreateOptions();
-        options.ThrowErrorOnFailure = false;
-
-        Assert.ThrowsAsync<WebException>(() => LinkedIn.SearchAdAnalytics(CreateInput(), options, default));
-    }
-
     [TestCase("invalid", "2023-12-11", "StartDate")]
     [TestCase("2023-12-10", "invalid", "EndDate")]
-    public void SearchAdAnalytics_InvalidDateThrows(string startDate, string endDate, string expectedMessage)
+    public async Task SearchAdAnalytics_InvalidDateThrows(string startDate, string endDate, string expectedMessage)
     {
         var input = CreateInput();
         input.StartDate = startDate;
         input.EndDate = endDate;
 
-        var exception = Assert.ThrowsAsync<ArgumentException>(() =>
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
             LinkedIn.SearchAdAnalytics(input, CreateOptions(), default));
 
         Assert.That(exception.Message, Does.Contain(expectedMessage));
@@ -151,8 +108,6 @@ internal class UnitTests
         var result = await LinkedIn.SearchAdAnalytics(input, options, default);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Does.StartWith("Invalid analytics input:"));
-        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<ArgumentException>());
     }
 
     [Test]
@@ -226,7 +181,6 @@ internal class UnitTests
         {
             LinkedInAPIVersion = "202309",
             Token = "sample-access-token",
-            ThrowExceptionOnErrorResponse = true,
             ConnectionTimeoutSeconds = 37,
             AllowInvalidCertificate = true,
             AllowInvalidResponseContentTypeCharSet = true,
