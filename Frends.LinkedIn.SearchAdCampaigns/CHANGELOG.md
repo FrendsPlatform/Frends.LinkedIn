@@ -2,12 +2,11 @@
 
 ## [2.0.0] - 2026-11-21
 ### Changed
-- **[Breaking Change]** Task now targets only .NET 8 (net8.0). Support for net6.0, netstandard2.0 and net471 was removed.
+- Task now targets only .NET 8
 - **[Breaking Change]** Task parameters were reorganized: the `Filter` parameter was renamed to `Input`, and the access `Token` was moved from `Options` to a new `Connection` parameter.
 - **[Breaking Change]** Replaced `Options.ThrowExceptionOnErrorResponse` with `Options.ThrowErrorOnFailure`, and added `Options.ErrorMessageOnFailure` for overriding the error message. When `ThrowErrorOnFailure` is false, failures are returned as `Result.Success = false` with `Result.Error` instead of an exception.
 - **[Breaking Change]** Removed the unused `Options.AllowInvalidResponseContentTypeCharSet` setting.
 - Result now includes `Success` and `Error` properties.
-- Documentation examples were improved.
 
 ## [1.1.0] - 2025-03-18
 ### Changed
