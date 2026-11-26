@@ -1,16 +1,16 @@
-﻿namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
-
 using System.Net.Http;
 
+namespace Frends.LinkedIn.SearchAdAnalytics.Definitions;
+
 /// <summary>
-/// Http Client Factory Interface.
+/// HTTP client factory interface.
 /// </summary>
 public interface IHttpClientFactory
 {
     /// <summary>
-    /// Create client
+    /// Creates an HTTP client.
     /// </summary>
-    /// <param name="options">Option parameters</param>
-    /// <returns>HttpClient object</returns>
-    HttpClient CreateClient(Options options);
+    /// <param name="connection">Connection parameters.</param>
+    /// <returns>An HTTP client.</returns>
+    HttpClient CreateClient(Connection connection);
 }
