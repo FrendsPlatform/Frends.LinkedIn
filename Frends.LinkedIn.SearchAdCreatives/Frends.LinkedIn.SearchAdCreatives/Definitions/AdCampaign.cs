@@ -1,13 +1,13 @@
-﻿namespace Frends.LinkedIn.SearchAdCreatives.Definitions
+namespace Frends.LinkedIn.SearchAdCreatives.Definitions;
+
+/// <summary>
+/// Campaign filter used to search for creatives.
+/// </summary>
+public class AdCampaign
 {
     /// <summary>
-    /// Class for Campaigns.
+    /// Campaign URN used as a filter.
     /// </summary>
-    public class AdCampaign
-    {
-        /// <summary>
-        /// Campaign URN for the Campaign used as filter.
-        /// </summary>
-        public string AdCampaignUrn { get; set; }
-    }
+    /// <example>urn:li:sponsoredCampaign:360035215</example>
+    public string AdCampaignUrn { get; set; }
 }
