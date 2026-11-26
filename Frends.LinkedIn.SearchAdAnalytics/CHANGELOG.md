@@ -5,12 +5,15 @@
 - **[Breaking Change]** Updated the task input parameter to `Input`
 - Replaced the `ThrowExceptionOnErrorResponse` option with standardized error options.
 - Updated the task to .NET 8
+- Moved the connection-related properties `LinkedInAPIVersion`, `Token`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`, `AllowInvalidResponseContentTypeCharSet` and `AutomaticCookieHandling` from `Options` to the new `Connection` class. The task now takes `Input`, `Connection` and `Options` parameters.
+- Removed the `ThrowExceptionOnErrorResponse` option. The task now always treats a non-2xx response as a failure.
 
 ### Added
 
-- Added Success and Error properties to the result. The task can now return Success = false with error details in Error instead of throwing.
-- Added ThrowErrorOnFailure option (default true) to choose whether failures throw an exception or are returned in the result.
-- Added ErrorMessageOnFailure option to specify a custom error message used when a failure occurs.
+- Added the `Connection` class that holds the connection properties listed above.
+- Added `Success` and `Error` properties to the result. The task can now return Success = false with error details in Error instead of throwing.
+- Added `ThrowErrorOnFailure` option (default true) to choose whether failures (including non-2xx responses) throw an exception or are returned in the result.
+- Added `ErrorMessageOnFailure` option to specify a custom error message used when a failure occurs.
 
 ## [1.1.0] - 2025-03-18
 ### Changed

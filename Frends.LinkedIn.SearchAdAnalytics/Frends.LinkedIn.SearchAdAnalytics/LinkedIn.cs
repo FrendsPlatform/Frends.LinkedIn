@@ -34,17 +34,18 @@ public static class LinkedIn
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdAnalytics).
     /// </summary>
     /// <param name="input">Input parameters.</param>
+    /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Options parameters.</param>
     /// <param name="cancellationToken">Cancellation token given by Frends.</param>
     /// <returns>Object { bool Success, object Body, Dictionary(string, string) Headers, int StatusCode, Error Error }.</returns>
-    public static async Task<Result> SearchAdAnalytics([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
+    public static async Task<Result> SearchAdAnalytics([PropertyTab] Input input, [PropertyTab] Connection connection, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
         try
         {
             var uri = FormRequestURI(input);
 
-            var client = GetHttpClientForOptions(options);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
+            var client = GetHttpClientForConnection(connection);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
             using var responseMessage = await GetHttpRequestResponseAsync(
                     client,
@@ -52,26 +53,23 @@ public static class LinkedIn
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            var responseBody = TryParseRequestStringResultAsJToken(await responseMessage.Content
+            var responseString = await responseMessage.Content
                 .ReadAsStringAsync(cancellationToken)
-                .ConfigureAwait(false));
+                .ConfigureAwait(false);
 
             var statusCode = (int)responseMessage.StatusCode;
-            var errorMessage = $"LinkedIn returned HTTP status code {statusCode}.";
-            if (!string.IsNullOrEmpty(options.ErrorMessageOnFailure))
+            if (!responseMessage.IsSuccessStatusCode)
             {
-                errorMessage = $"{options.ErrorMessageOnFailure}: {errorMessage}";
+                throw new HttpRequestException($"LinkedIn returned HTTP status code {statusCode}: {responseString}");
             }
 
             return new Result
             {
-                Success = responseMessage.IsSuccessStatusCode,
-                Body = responseBody,
+                Success = true,
+                Body = TryParseRequestStringResultAsJToken(responseString),
                 Headers = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers),
                 StatusCode = statusCode,
-                Error = responseMessage.IsSuccessStatusCode
-                    ? null
-                    : new Error { Message = errorMessage },
+                Error = null,
             };
         }
         catch (Exception exception)
@@ -128,29 +126,29 @@ public static class LinkedIn
         return allHeaders;
     }
 
-    private static HttpClient GetHttpClientForOptions(Options options)
+    private static HttpClient GetHttpClientForConnection(Connection connection)
     {
-        var cacheKey = GetHttpClientCacheKey(options);
+        var cacheKey = GetHttpClientCacheKey(connection);
 
         if (ClientCache.Get(cacheKey) is HttpClient httpClient)
         {
             return httpClient;
         }
 
-        httpClient = ClientFactory.CreateClient(options);
-        httpClient.SetDefaultRequestHeadersBasedOnOptions(options);
+        httpClient = ClientFactory.CreateClient(connection);
+        httpClient.SetDefaultRequestHeadersBasedOnConnection(connection);
 
         ClientCache.Add(cacheKey, httpClient, CachePolicy);
 
         return httpClient;
     }
 
-    private static string GetHttpClientCacheKey(Options options)
+    private static string GetHttpClientCacheKey(Connection connection)
     {
-        // Includes everything except for options.Token, which is used on request level, not http client level
-        return $"{options.ConnectionTimeoutSeconds}"
-                + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-                + $":{options.AutomaticCookieHandling}";
+        // Includes everything except for connection.Token, which is used on request level, not http client level
+        return $"{connection.ConnectionTimeoutSeconds}"
+                + $":{connection.FollowRedirects}:{connection.AllowInvalidCertificate}:{connection.AllowInvalidResponseContentTypeCharSet}"
+                + $":{connection.AutomaticCookieHandling}";
     }
 
     private static string FormRequestURI(Input input)

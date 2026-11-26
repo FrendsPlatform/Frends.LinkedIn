@@ -36,7 +36,7 @@ internal class UnitTests
     [Test]
     public async Task SearchAdAnalytics_AnalyticsRequestReturnsResponse()
     {
-        var result = await LinkedIn.SearchAdAnalytics(CreateInput(), CreateOptions(), default);
+        var result = await LinkedIn.SearchAdAnalytics(CreateInput(), CreateConnection(), CreateOptions(), default);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Error, Is.Null);
@@ -58,7 +58,7 @@ internal class UnitTests
         input.Creatives = new[] { "urn:li:sponsoredCreative:1234567" };
         input.Metrics = new[] { "clicks", "comments" };
 
-        await LinkedIn.SearchAdAnalytics(input, CreateOptions(), default);
+        await LinkedIn.SearchAdAnalytics(input, CreateConnection(), CreateOptions(), default);
 
         Assert.That(Handler.LastRequestUri.Query, Does.Contain("pivot=COMPANY"));
         Assert.That(Handler.LastRequestUri.Query, Does.Contain("dateRange=(start:"));
@@ -76,7 +76,7 @@ internal class UnitTests
         input.Finder = Finder.Statistics;
         input.Pivots = new[] { Pivot.COMPANY, Pivot.ACCOUNT };
 
-        await LinkedIn.SearchAdAnalytics(input, CreateOptions(), default);
+        await LinkedIn.SearchAdAnalytics(input, CreateConnection(), CreateOptions(), default);
 
         Assert.That(Handler.LastRequestUri.Query, Does.Contain("q=statistics"));
         Assert.That(Handler.LastRequestUri.Query, Does.Contain("pivots=List(COMPANY,ACCOUNT)"));
@@ -91,7 +91,7 @@ internal class UnitTests
         input.EndDate = endDate;
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
-            LinkedIn.SearchAdAnalytics(input, CreateOptions(), default));
+            LinkedIn.SearchAdAnalytics(input, CreateConnection(), CreateOptions(), default));
 
         Assert.That(exception.Message, Does.Contain(expectedMessage));
     }
@@ -105,9 +105,39 @@ internal class UnitTests
         var input = CreateInput();
         input.StartDate = "invalid";
 
-        var result = await LinkedIn.SearchAdAnalytics(input, options, default);
+        var result = await LinkedIn.SearchAdAnalytics(input, CreateConnection(), options, default);
 
         Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public async Task SearchAdAnalytics_NonSuccessStatusCodeThrows()
+    {
+        Handler.Response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("{\"message\":\"bad\"}"),
+        };
+
+        var exception = await Assert.ThrowsAsync<HttpRequestException>(() =>
+            LinkedIn.SearchAdAnalytics(CreateInput(), CreateConnection(), CreateOptions(), default));
+
+        Assert.That(exception.Message, Does.Contain("400"));
+    }
+
+    [Test]
+    public async Task SearchAdAnalytics_NonSuccessStatusCodeReturnsErrorWhenFailureThrowingIsDisabled()
+    {
+        Handler.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+        {
+            Content = new StringContent("not-json"),
+        };
+        var options = CreateOptions();
+        options.ThrowErrorOnFailure = false;
+
+        var result = await LinkedIn.SearchAdAnalytics(CreateInput(), CreateConnection(), options, default);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("401"));
     }
 
     [Test]
@@ -116,7 +146,7 @@ internal class UnitTests
         Handler.Response.Content = new StringContent("not-json");
 
         Assert.ThrowsAsync<Newtonsoft.Json.JsonReaderException>(() =>
-            LinkedIn.SearchAdAnalytics(CreateInput(), CreateOptions(), default));
+            LinkedIn.SearchAdAnalytics(CreateInput(), CreateConnection(), CreateOptions(), default));
     }
 
     [Test]
@@ -124,7 +154,7 @@ internal class UnitTests
     {
         Handler.Response.Content = new StringContent(string.Empty);
 
-        var result = LinkedIn.SearchAdAnalytics(CreateInput(), CreateOptions(), default).GetAwaiter().GetResult();
+        var result = LinkedIn.SearchAdAnalytics(CreateInput(), CreateConnection(), CreateOptions(), default).GetAwaiter().GetResult();
 
         Assert.That(result.Body.ToString(), Is.Empty);
     }
@@ -136,7 +166,7 @@ internal class UnitTests
         cancellationSource.Cancel();
 
         Assert.ThrowsAsync<OperationCanceledException>(() =>
-            LinkedIn.SearchAdAnalytics(CreateInput(), CreateOptions(), cancellationSource.Token));
+            LinkedIn.SearchAdAnalytics(CreateInput(), CreateConnection(), CreateOptions(), cancellationSource.Token));
     }
 
     [Test]
@@ -145,18 +175,18 @@ internal class UnitTests
         Handler.ThrowTimeout = true;
 
         Assert.ThrowsAsync<ArgumentException>(() =>
-            LinkedIn.SearchAdAnalytics(CreateInput(), CreateOptions(), default));
+            LinkedIn.SearchAdAnalytics(CreateInput(), CreateConnection(), CreateOptions(), default));
     }
 
     [Test]
     public void HttpClientFactory_AppliesOptionsAndDefaultHeaders()
     {
-        var options = CreateOptions();
-        using var client = new HttpClientFactory().CreateClient(options);
-        client.SetDefaultRequestHeadersBasedOnOptions(options);
+        var connection = CreateConnection();
+        using var client = new HttpClientFactory().CreateClient(connection);
+        client.SetDefaultRequestHeadersBasedOnConnection(connection);
 
-        Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(options.ConnectionTimeoutSeconds)));
-        Assert.That(client.DefaultRequestHeaders.GetValues("LinkedIn-Version"), Does.Contain(options.LinkedInAPIVersion));
+        Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(connection.ConnectionTimeoutSeconds)));
+        Assert.That(client.DefaultRequestHeaders.GetValues("LinkedIn-Version"), Does.Contain(connection.LinkedInAPIVersion));
         Assert.That(client.DefaultRequestHeaders.GetValues("X-Restli-Protocol-Version"), Does.Contain("2.0.0"));
     }
 
@@ -177,7 +207,12 @@ internal class UnitTests
 
     private static Options CreateOptions()
     {
-        return new Options
+        return new Options();
+    }
+
+    private static Connection CreateConnection()
+    {
+        return new Connection
         {
             LinkedInAPIVersion = "202309",
             Token = "sample-access-token",
@@ -198,7 +233,7 @@ internal class UnitTests
             this.handler = handler;
         }
 
-        public HttpClient CreateClient(Options options)
+        public HttpClient CreateClient(Connection connection)
         {
             return new HttpClient(this.handler, disposeHandler: false);
         }

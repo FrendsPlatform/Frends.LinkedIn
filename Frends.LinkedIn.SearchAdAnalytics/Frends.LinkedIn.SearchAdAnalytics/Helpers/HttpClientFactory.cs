@@ -9,14 +9,14 @@ namespace Frends.LinkedIn.SearchAdAnalytics;
 internal class HttpClientFactory : IHttpClientFactory
 {
     /// <summary>
-    /// Creates a client configured from the task options.
+    /// Creates a client configured from the connection parameters.
     /// </summary>
-    /// <param name="options">Task options.</param>
+    /// <param name="connection">Connection parameters.</param>
     /// <returns>A configured HTTP client.</returns>
-    public HttpClient CreateClient(Options options)
+    public HttpClient CreateClient(Connection connection)
     {
         var handler = new HttpClientHandler();
-        handler.SetHandlerSettingsBasedOnOptions(options);
+        handler.SetHandlerSettingsBasedOnConnection(connection);
         return new HttpClient(handler);
     }
 }
