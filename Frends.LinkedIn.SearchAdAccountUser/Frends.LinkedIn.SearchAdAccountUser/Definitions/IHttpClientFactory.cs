@@ -10,7 +10,7 @@ public interface IHttpClientFactory
     /// <summary>
     /// Create an HTTP client.
     /// </summary>
-    /// <param name="options">Task options.</param>
+    /// <param name="connection">Connection parameters.</param>
     /// <returns>An HTTP client.</returns>
-    HttpClient CreateClient(Options options);
+    HttpClient CreateClient(Connection connection);
 }

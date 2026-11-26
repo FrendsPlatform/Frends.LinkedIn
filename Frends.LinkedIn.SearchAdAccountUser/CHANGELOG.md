@@ -3,15 +3,23 @@
 ## [2.0.0] - 2026-11-21
 ### Changed
 - **[Breaking Change]** Reorganized task inputs to separate standard `Input`, `Options` and `Connection` tabs.
-- Replaced the `ThrowExceptionOnErrorResponse` option with standardized error options.
-- Updated the task to .NET 8 
-  
+- **[Breaking Change]** Renamed the `Filter` parameter class to `Input`. Its properties (`SearchMethod`, `AccountUrn`, `AccountUrns`, `UserUrn`) are unchanged.
+- **[Breaking Change]** Moved the following properties from `Options` to `Connection`:
+  - `Token`
+  - `LinkedInAPIVersion`
+  - `ConnectionTimeoutSeconds`
+  - `FollowRedirects`
+  - `AllowInvalidCertificate`
+  - `AllowInvalidResponseContentTypeCharSet`
+  - `AutomaticCookieHandling`
+- **[Breaking Change]** A non-2xx response now always results in an error (an exception is thrown, or an error is returned in the result when `ThrowErrorOnFailure` is false).
+- Updated the task to .NET 8.
+- **[Breaking Change]** Removed the `ThrowExceptionOnErrorResponse` option from `Options`. The task now behaves as if it were always true.
+
 ### Added
-
-- Added Success and Error properties to the result. The task can now return Success = false with error details in Error instead of throwing.
-- Added ThrowErrorOnFailure option (default true) to choose whether failures throw an exception or are returned in the result.
-- Added ErrorMessageOnFailure option to specify a custom error message used when a failure occurs.
-
+- Added `Success` and `Error` properties to the result. The task can now return `Success = false` with error details in `Error` instead of throwing.
+- Added `ThrowErrorOnFailure` option (default true) to `Options` to choose whether failures throw an exception or are returned in the result.
+- Added `ErrorMessageOnFailure` option to `Options` to specify a custom error message used when a failure occurs.
 
 ## [1.1.0] - 2025-03-18
 ### Changed

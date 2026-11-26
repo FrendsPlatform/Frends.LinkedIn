@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -46,7 +46,7 @@ public static class LinkedIn
         {
             cancellationToken.ThrowIfCancellationRequested();
             var uri = FormRequestURI(input);
-            var client = GetHttpClientForOptions(options);
+            var client = GetHttpClientForConnection(connection);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
             using var responseMessage = await GetHttpRequestResponseAsync(client, uri, cancellationToken)
@@ -54,6 +54,9 @@ public static class LinkedIn
             var body = TryParseRequestStringResultAsJToken(
                 await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
             var statusCode = (int)responseMessage.StatusCode;
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new WebException($"Request to '{uri}' failed with status code {statusCode}. Response body: {body}");
+
             var headers = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
             result = new Result
             {
@@ -116,24 +119,24 @@ public static class LinkedIn
         return allHeaders;
     }
 
-    private static HttpClient GetHttpClientForOptions(Options options)
+    private static HttpClient GetHttpClientForConnection(Connection connection)
     {
-        var cacheKey = GetHttpClientCacheKey(options);
+        var cacheKey = GetHttpClientCacheKey(connection);
 
         if (ClientCache.Get(cacheKey) is HttpClient cachedClient)
             return cachedClient;
 
-        var httpClient = ClientFactory.CreateClient(options);
-        httpClient.SetDefaultRequestHeadersBasedOnOptions(options);
+        var httpClient = ClientFactory.CreateClient(connection);
+        httpClient.SetDefaultRequestHeadersBasedOnConnection(connection);
         ClientCache.Add(cacheKey, httpClient, CachePolicy);
         return httpClient;
     }
 
-    private static string GetHttpClientCacheKey(Options options)
+    private static string GetHttpClientCacheKey(Connection connection)
     {
-        return $"{options.ConnectionTimeoutSeconds}"
-               + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-               + $":{options.AutomaticCookieHandling}";
+        return $"{connection.LinkedInAPIVersion}:{connection.ConnectionTimeoutSeconds}"
+               + $":{connection.FollowRedirects}:{connection.AllowInvalidCertificate}:{connection.AllowInvalidResponseContentTypeCharSet}"
+               + $":{connection.AutomaticCookieHandling}";
     }
 
     private static string FormRequestURI(Input input)

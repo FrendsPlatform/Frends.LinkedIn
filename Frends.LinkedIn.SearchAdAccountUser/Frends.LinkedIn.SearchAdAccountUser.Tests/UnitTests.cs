@@ -32,12 +32,10 @@ internal sealed class UnitTests
         connection = new Connection
         {
             Token = "test-token",
-        };
-        options = new Options
-        {
             LinkedInAPIVersion = "202309",
             ConnectionTimeoutSeconds = Interlocked.Increment(ref nextTimeout),
         };
+        options = new Options();
         clientFactory = new StubHttpClientFactory();
         LinkedIn.ClientFactory = clientFactory;
     }
@@ -118,7 +116,16 @@ internal sealed class UnitTests
         var result = await ExecuteAsync();
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.StatusCode, Is.EqualTo(403));
+        Assert.That(result.Error.Message, Does.StartWith("Custom search failure: "));
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<WebException>());
+    }
+
+    [Test]
+    public void ErrorResponse_WhenThrowingIsEnabled_ThrowsException()
+    {
+        clientFactory.Handler.Response = CreateResponse(HttpStatusCode.Forbidden, "{\"message\":\"Denied\"}");
+
+        Assert.ThrowsAsync<WebException>(async () => await ExecuteAsync());
     }
 
     [Test]
@@ -198,7 +205,7 @@ internal sealed class UnitTests
     [Test]
     public void HttpClientFactory_AppliesHandlerOptions()
     {
-        using var client = new Frends.LinkedIn.SearchAdAccountUser.HttpClientFactory().CreateClient(new Options
+        using var client = new Frends.LinkedIn.SearchAdAccountUser.HttpClientFactory().CreateClient(new Connection
         {
             FollowRedirects = false,
             AutomaticCookieHandling = false,
@@ -227,7 +234,7 @@ internal sealed class UnitTests
 
         public int CreateCount { get; private set; }
 
-        public HttpClient CreateClient(Options options)
+        public HttpClient CreateClient(Connection connection)
         {
             CreateCount++;
             return new HttpClient(Handler);

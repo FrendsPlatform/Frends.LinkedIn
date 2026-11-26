@@ -6,20 +6,20 @@ namespace Frends.LinkedIn.SearchAdAccountUser;
 
 internal static class Extensions
 {
-    internal static void SetHandlerSettingsBasedOnOptions(this HttpClientHandler handler, Options options)
+    internal static void SetHandlerSettingsBasedOnConnection(this HttpClientHandler handler, Connection connection)
     {
-        handler.AllowAutoRedirect = options.FollowRedirects;
-        handler.UseCookies = options.AutomaticCookieHandling;
+        handler.AllowAutoRedirect = connection.FollowRedirects;
+        handler.UseCookies = connection.AutomaticCookieHandling;
 
-        if (options.AllowInvalidCertificate)
+        if (connection.AllowInvalidCertificate)
             handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
     }
 
-    internal static void SetDefaultRequestHeadersBasedOnOptions(this HttpClient httpClient, Options options)
+    internal static void SetDefaultRequestHeadersBasedOnConnection(this HttpClient httpClient, Connection connection)
     {
         httpClient.DefaultRequestHeaders.ExpectContinue = false;
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("LinkedIn-Version", options.LinkedInAPIVersion);
-        httpClient.Timeout = TimeSpan.FromSeconds(Convert.ToDouble(options.ConnectionTimeoutSeconds));
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("LinkedIn-Version", connection.LinkedInAPIVersion);
+        httpClient.Timeout = TimeSpan.FromSeconds(Convert.ToDouble(connection.ConnectionTimeoutSeconds));
     }
 }
