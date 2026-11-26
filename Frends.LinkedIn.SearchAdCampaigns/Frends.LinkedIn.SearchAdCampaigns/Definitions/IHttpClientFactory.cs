@@ -8,7 +8,7 @@ public interface IHttpClientFactory
     /// <summary>
     /// Create client.
     /// </summary>
-    /// <param name="options">Option parameters.</param>
+    /// <param name="connection">Connection parameters.</param>
     /// <returns>HttpClient object.</returns>
-    HttpClient CreateClient(Options options);
+    HttpClient CreateClient(Connection connection);
 }

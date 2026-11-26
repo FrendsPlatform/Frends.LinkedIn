@@ -35,8 +35,8 @@ public static class LinkedIn
         {
             var uri = FormRequestURI(input);
 
-            using var client = ClientFactory.CreateClient(options);
-            client.SetDefaultRequestHeadersBasedOnOptions(options);
+            using var client = ClientFactory.CreateClient(connection);
+            client.SetDefaultRequestHeadersBasedOnConnection(connection);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
             using var responseMessage = await GetHttpRequestResponseAsync(client, uri, cancellationToken)

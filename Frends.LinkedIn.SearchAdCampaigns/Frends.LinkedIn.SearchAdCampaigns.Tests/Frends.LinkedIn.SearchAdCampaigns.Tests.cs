@@ -27,17 +27,17 @@ public class UnitTests
             StatusFilters = null,
         };
 
-        connection = new Connection { Token = "token" };
-
-        options = new Options
+        connection = new Connection
         {
+            Token = "token",
             LinkedInAPIVersion = "202309",
             ConnectionTimeoutSeconds = 30,
             AllowInvalidCertificate = true,
             AutomaticCookieHandling = true,
             FollowRedirects = true,
-            ThrowErrorOnFailure = true,
         };
+
+        options = new Options { ThrowErrorOnFailure = true };
 
         handler = new MockHandler();
         originalFactory = LinkedIn.ClientFactory;
@@ -178,12 +178,12 @@ public class UnitTests
     [Test]
     public void DefaultFactoryAppliesOptions()
     {
-        options.ConnectionTimeoutSeconds = 5;
-        options.AutomaticCookieHandling = false;
-        options.FollowRedirects = false;
+        connection.ConnectionTimeoutSeconds = 5;
+        connection.AutomaticCookieHandling = false;
+        connection.FollowRedirects = false;
 
-        using var client = new HttpClientFactory().CreateClient(options);
-        client.SetDefaultRequestHeadersBasedOnOptions(options);
+        using var client = new HttpClientFactory().CreateClient(connection);
+        client.SetDefaultRequestHeadersBasedOnConnection(connection);
 
         Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(5)));
         Assert.That(client.DefaultRequestHeaders.GetValues("X-Restli-Protocol-Version").Single(), Is.EqualTo("2.0.0"));
@@ -195,7 +195,7 @@ public class UnitTests
 
         public MockFactory(HttpMessageHandler messageHandler) => this.messageHandler = messageHandler;
 
-        public HttpClient CreateClient(Options options) => new(messageHandler, false);
+        public HttpClient CreateClient(Connection connection) => new(messageHandler, false);
     }
 
     private sealed class MockHandler : HttpMessageHandler
