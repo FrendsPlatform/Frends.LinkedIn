@@ -32,7 +32,7 @@ internal class UnitTests
         };
         var options = DefaultOptions();
 
-        var result = await LinkedIn.RequestWithHttpClient(input, options, CancellationToken.None, client);
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), options, CancellationToken.None, client);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Error, Is.Null);
@@ -72,7 +72,7 @@ internal class UnitTests
             },
         };
 
-        var result = await LinkedIn.RequestWithHttpClient(input, DefaultOptions(), CancellationToken.None, client);
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), DefaultOptions(), CancellationToken.None, client);
 
         Assert.That(result.Success, Is.True);
         Assert.That(handler.Method, Is.EqualTo("POST"));
@@ -87,11 +87,7 @@ internal class UnitTests
         using var handler = new MockHttpMessageHandler(HttpStatusCode.NoContent, "  ");
         using var client = new HttpClient(handler);
 
-        var result = await LinkedIn.RequestWithHttpClient(
-            DefaultInput(),
-            DefaultOptions(),
-            CancellationToken.None,
-            client);
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), DefaultOptions(), CancellationToken.None, client);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Body.ToString(), Is.Empty);
@@ -105,7 +101,7 @@ internal class UnitTests
         var options = DefaultOptions();
         options.ThrowErrorOnFailure = false;
 
-        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), options, CancellationToken.None, client);
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), options, CancellationToken.None, client);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("Unable to read response message as json"));
@@ -121,7 +117,7 @@ internal class UnitTests
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "LinkedIn request failed";
 
-        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), options, CancellationToken.None, client);
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), options, CancellationToken.None, client);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.StartWith("LinkedIn request failed:"));
@@ -130,18 +126,15 @@ internal class UnitTests
     }
 
     [Test]
-    public async Task RequestReturnsHttpErrorResponseWhenConfiguredNotToThrow()
+    public async Task RequestThrowsOnNonSuccessStatusCode()
     {
         using var handler = new MockHttpMessageHandler(HttpStatusCode.BadRequest, "{\"error\":\"bad request\"}");
         using var client = new HttpClient(handler);
-        var options = DefaultOptions();
-        options.ThrowExceptionOnErrorResponse = false;
 
-        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), options, CancellationToken.None, client);
+        var actual = await Assert.ThrowsAsync<WebException>(async () =>
+            await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), DefaultOptions(), CancellationToken.None, client));
 
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.StatusCode, Is.EqualTo(400));
-        Assert.That(result.Error, Is.Null);
+        Assert.That(actual.Message, Does.Contain("status code 400"));
     }
 
     [Test]
@@ -153,7 +146,7 @@ internal class UnitTests
         cancellation.Cancel();
 
         Assert.ThrowsAsync<OperationCanceledException>(async () =>
-            await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultOptions(), cancellation.Token, client));
+            await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), DefaultOptions(), cancellation.Token, client));
         Assert.That(handler.WasCalled, Is.False);
     }
 
@@ -165,7 +158,7 @@ internal class UnitTests
         var options = DefaultOptions();
         options.ThrowErrorOnFailure = false;
 
-        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), options, CancellationToken.None, client);
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), options, CancellationToken.None, client);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("most likely due to a timeout"));
@@ -182,7 +175,7 @@ internal class UnitTests
         var input = DefaultInput();
         input.Url = "not-an-absolute-url";
 
-        var result = await LinkedIn.RequestWithHttpClient(input, options, CancellationToken.None, client);
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), options, CancellationToken.None, client);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.Not.Null);
@@ -211,7 +204,7 @@ internal class UnitTests
             },
         };
 
-        var result = await LinkedIn.RequestWithHttpClient(input, options, CancellationToken.None, client);
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), options, CancellationToken.None, client);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.AdditionalInfo, Is.TypeOf<ArgumentException>());
@@ -221,12 +214,12 @@ internal class UnitTests
     [Test]
     public void HttpClientFactoryCreatesConfiguredClientAndRequestHeaders()
     {
-        var options = DefaultOptions();
-        options.ConnectionTimeoutSeconds = 46;
+        var connection = DefaultConnection();
+        connection.ConnectionTimeoutSeconds = 46;
         var factory = new HttpClientFactory();
 
-        using var client = factory.CreateClient(options);
-        client.SetDefaultRequestHeadersBasedOnOptions(options);
+        using var client = factory.CreateClient(connection);
+        client.SetDefaultRequestHeadersBasedOnConnection(connection);
 
         Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(46)));
         Assert.That(client.DefaultRequestHeaders.ExpectContinue, Is.False);
@@ -235,13 +228,13 @@ internal class UnitTests
     }
 
     [Test]
-    public void RequestClientCacheReusesClientForEquivalentOptions()
+    public void RequestClientCacheReusesClientForEquivalentConnection()
     {
-        var options = DefaultOptions();
-        options.ConnectionTimeoutSeconds = 47;
+        var connection = DefaultConnection();
+        connection.ConnectionTimeoutSeconds = 47;
 
-        var firstClient = LinkedIn.GetHttpClientForOptions(options);
-        var secondClient = LinkedIn.GetHttpClientForOptions(options);
+        var firstClient = LinkedIn.GetHttpClientForConnection(connection);
+        var secondClient = LinkedIn.GetHttpClientForConnection(connection);
 
         Assert.That(secondClient, Is.SameAs(firstClient));
         Assert.That(firstClient.Timeout, Is.EqualTo(TimeSpan.FromSeconds(47)));
@@ -301,17 +294,23 @@ internal class UnitTests
         };
     }
 
+    private static Connection DefaultConnection()
+    {
+        return new Connection
+        {
+            LinkedInAPIVersion = "202309",
+            Token = "test-token",
+            ConnectionTimeoutSeconds = 30,
+            FollowRedirects = true,
+            AutomaticCookieHandling = true,
+        };
+    }
+
     private static Options DefaultOptions()
     {
         return new Options
         {
-            LinkedInAPIVersion = "202309",
-            Token = "test-token",
             ThrowErrorOnFailure = true,
-            ThrowExceptionOnErrorResponse = true,
-            ConnectionTimeoutSeconds = 30,
-            FollowRedirects = true,
-            AutomaticCookieHandling = true,
         };
     }
 

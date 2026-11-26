@@ -30,35 +30,38 @@ public static class LinkedIn
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.Request).
     /// </summary>
     /// <param name="input">Input parameters.</param>
+    /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Options parameters.</param>
     /// <param name="cancellationToken">Cancellation token given by Frends.</param>
     /// <returns>object { bool Success, object Body, Dictionary&lt;string, string&gt; Headers, int StatusCode, object Error }</returns>
     public static Task<Result> Request(
         [PropertyTab] Input input,
+        [PropertyTab] Connection connection,
         [PropertyTab] Options options,
         CancellationToken cancellationToken)
     {
-        return RequestCore(input, options, cancellationToken, GetHttpClientForOptions);
+        return RequestCore(input, connection, options, cancellationToken, GetHttpClientForConnection);
     }
 
     internal static Task<Result> RequestWithHttpClient(
         Input input,
+        Connection connection,
         Options options,
         CancellationToken cancellationToken,
         HttpClient httpClient)
     {
-        return RequestCore(input, options, cancellationToken, _ => httpClient);
+        return RequestCore(input, connection, options, cancellationToken, _ => httpClient);
     }
 
-    internal static HttpClient GetHttpClientForOptions(Options options)
+    internal static HttpClient GetHttpClientForConnection(Connection connection)
     {
-        var cacheKey = GetHttpClientCacheKey(options);
+        var cacheKey = GetHttpClientCacheKey(connection);
 
         if (ClientCache.Get(cacheKey) is HttpClient httpClient)
             return httpClient;
 
-        httpClient = ClientFactory.CreateClient(options);
-        httpClient.SetDefaultRequestHeadersBasedOnOptions(options);
+        httpClient = ClientFactory.CreateClient(connection);
+        httpClient.SetDefaultRequestHeadersBasedOnConnection(connection);
 
         ClientCache.Add(cacheKey, httpClient, CachePolicy);
 
@@ -67,14 +70,15 @@ public static class LinkedIn
 
     private static async Task<Result> RequestCore(
         Input input,
+        Connection connection,
         Options options,
         CancellationToken cancellationToken,
-        Func<Options, HttpClient> getHttpClient)
+        Func<Connection, HttpClient> getHttpClient)
     {
         try
         {
-            var client = getHttpClient(options);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
+            var client = getHttpClient(connection);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
             var headers = GetHeaderDictionary(input.Headers);
 
@@ -97,7 +101,7 @@ public static class LinkedIn
             var rheaders = GetResponseHeaderDictionary(responseMessage.Headers, responseMessage.Content.Headers);
             var response = new Result(rbody, rheaders, rstatusCode);
 
-            if (!responseMessage.IsSuccessStatusCode && options.ThrowExceptionOnErrorResponse)
+            if (!responseMessage.IsSuccessStatusCode)
             {
                 throw new WebException(
                     $"Request to '{input.Url}' failed with status code {(int)responseMessage.StatusCode}. Response body: {response.Body}");
@@ -214,11 +218,11 @@ public static class LinkedIn
         return allHeaders;
     }
 
-    private static string GetHttpClientCacheKey(Options options)
+    private static string GetHttpClientCacheKey(Connection connection)
     {
-        // Includes everything except for options.Token, which is used on request level, not http client level
-        return $"{options.ConnectionTimeoutSeconds}"
-               + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-               + $":{options.ThrowExceptionOnErrorResponse}:{options.AutomaticCookieHandling}";
+        // Includes everything except for connection.Token, which is used on request level, not http client level
+        return $"{connection.ConnectionTimeoutSeconds}"
+               + $":{connection.FollowRedirects}:{connection.AllowInvalidCertificate}:{connection.AllowInvalidResponseContentTypeCharSet}"
+               + $":{connection.AutomaticCookieHandling}";
     }
 }

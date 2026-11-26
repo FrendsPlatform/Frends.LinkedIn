@@ -9,14 +9,14 @@ namespace Frends.LinkedIn.Request;
 internal class HttpClientFactory : IHttpClientFactory
 {
     /// <summary>
-    /// Creates an HTTP client using the supplied options.
+    /// Creates an HTTP client using the supplied connection.
     /// </summary>
-    /// <param name="options">The task options.</param>
+    /// <param name="connection">The connection parameters.</param>
     /// <returns>The configured HTTP client.</returns>
-    public HttpClient CreateClient(Options options)
+    public HttpClient CreateClient(Connection connection)
     {
         var handler = new HttpClientHandler();
-        handler.SetHandlerSettingsBasedOnOptions(options);
+        handler.SetHandlerSettingsBasedOnConnection(connection);
         return new HttpClient(handler);
     }
 }
