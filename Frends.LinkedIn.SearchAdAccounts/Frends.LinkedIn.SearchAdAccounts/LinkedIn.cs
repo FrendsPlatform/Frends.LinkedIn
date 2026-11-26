@@ -31,19 +31,21 @@ public static class LinkedIn
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdAccounts).
     /// </summary>
     /// <param name="input">Search criteria.</param>
-    /// <param name="options">Request and failure-handling options.</param>
+    /// <param name="connection">Connection parameters.</param>
+    /// <param name="options">Failure-handling options.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends.</param>
     /// <returns>object { bool Success, object Error { string Message, Exception AdditionalInfo }, dynamic Body, Dictionary(string, string) Headers, int StatusCode }.</returns>
     public static async Task<Result> SearchAdAccounts(
         [PropertyTab] Input input,
+        [PropertyTab] Connection connection,
         [PropertyTab] Options options,
         CancellationToken cancellationToken)
     {
         try
         {
             var uri = FormRequestURI(input);
-            var client = GetHttpClientForOptions(options);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.Token);
+            var client = GetHttpClientForConnection(connection);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
             using var responseMessage = await GetHttpRequestResponseAsync(client, uri, cancellationToken)
                 .ConfigureAwait(false);
@@ -58,7 +60,7 @@ public static class LinkedIn
                 Error = null,
             };
 
-            if (!responseMessage.IsSuccessStatusCode && options.ThrowExceptionOnErrorResponse)
+            if (!responseMessage.IsSuccessStatusCode)
             {
                 throw new WebException(
                     $"Request to '{uri}' failed with status code {(int)responseMessage.StatusCode}. Response body: {result.Body}");
@@ -121,25 +123,25 @@ public static class LinkedIn
         return allHeaders;
     }
 
-    private static HttpClient GetHttpClientForOptions(Options options)
+    private static HttpClient GetHttpClientForConnection(Connection connection)
     {
-        var cacheKey = GetHttpClientCacheKey(options);
+        var cacheKey = GetHttpClientCacheKey(connection);
         if (ClientCache.Get(cacheKey) is HttpClient cachedClient)
         {
             return cachedClient;
         }
 
-        var httpClient = ClientFactory.CreateClient(options);
-        httpClient.SetDefaultRequestHeadersBasedOnOptions(options);
+        var httpClient = ClientFactory.CreateClient(connection);
+        httpClient.SetDefaultRequestHeadersBasedOnConnection(connection);
         ClientCache.Add(cacheKey, httpClient, CachePolicy);
         return httpClient;
     }
 
-    private static string GetHttpClientCacheKey(Options options)
+    private static string GetHttpClientCacheKey(Connection connection)
     {
-        return $"{options.ConnectionTimeoutSeconds}"
-            + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-            + $":{options.ThrowExceptionOnErrorResponse}:{options.AutomaticCookieHandling}";
+        return $"{connection.ConnectionTimeoutSeconds}"
+            + $":{connection.FollowRedirects}:{connection.AllowInvalidCertificate}:{connection.AllowInvalidResponseContentTypeCharSet}"
+            + $":{connection.AutomaticCookieHandling}:{connection.LinkedInAPIVersion}";
     }
 
     private static string FormRequestURI(Input input)

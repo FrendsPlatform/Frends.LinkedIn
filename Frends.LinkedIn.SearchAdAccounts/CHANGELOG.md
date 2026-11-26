@@ -3,7 +3,8 @@
 ## [2.0.0] - 2026-11-21
 ### Changed
 - **[Breaking Change]** Renamed the task input parameter from `Filter` to `Input`.
-- Replaced the `ThrowExceptionOnErrorResponse` option with standardized error options.
+- **[Breaking Change]** Moved connection-related properties from `Options` to the new `Connection` parameter: `LinkedInAPIVersion`, `Token`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`, `AllowInvalidResponseContentTypeCharSet` and `AutomaticCookieHandling`. The task method now takes `Input`, `Connection` and `Options`.
+- **[Breaking Change]** Removed the `ThrowExceptionOnErrorResponse` option. A non-2xx response now always results in an exception (handled according to `ThrowErrorOnFailure`).
 - Upgraded the Task to .NET 8
 
 ### Added

@@ -6,32 +6,32 @@ namespace Frends.LinkedIn.SearchAdAccounts.Helpers;
 internal static class Extensions
 {
     /// <summary>
-    /// Configures the HTTP handler using task options.
+    /// Configures the HTTP handler using task connection.
     /// </summary>
     /// <param name="handler">The HTTP handler to configure.</param>
-    /// <param name="options">The task options.</param>
-    internal static void SetHandlerSettingsBasedOnOptions(this HttpClientHandler handler, Options options)
+    /// <param name="connection">The task connection.</param>
+    internal static void SetHandlerSettingsBasedOnConnection(this HttpClientHandler handler, Connection connection)
     {
-        handler.AllowAutoRedirect = options.FollowRedirects;
-        handler.UseCookies = options.AutomaticCookieHandling;
+        handler.AllowAutoRedirect = connection.FollowRedirects;
+        handler.UseCookies = connection.AutomaticCookieHandling;
 
-        if (options.AllowInvalidCertificate)
+        if (connection.AllowInvalidCertificate)
         {
             handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
         }
     }
 
     /// <summary>
-    /// Configures default headers and timeout using task options.
+    /// Configures default headers and timeout using task connection.
     /// </summary>
     /// <param name="httpClient">The HTTP client to configure.</param>
-    /// <param name="options">The task options.</param>
-    internal static void SetDefaultRequestHeadersBasedOnOptions(this HttpClient httpClient, Options options)
+    /// <param name="connection">The task connection.</param>
+    internal static void SetDefaultRequestHeadersBasedOnConnection(this HttpClient httpClient, Connection connection)
     {
         httpClient.DefaultRequestHeaders.ExpectContinue = false;
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("content-type", "application/json");
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("LinkedIn-Version", options.LinkedInAPIVersion);
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("LinkedIn-Version", connection.LinkedInAPIVersion);
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Restli-Protocol-Version", "2.0.0");
-        httpClient.Timeout = TimeSpan.FromSeconds(options.ConnectionTimeoutSeconds);
+        httpClient.Timeout = TimeSpan.FromSeconds(connection.ConnectionTimeoutSeconds);
     }
 }

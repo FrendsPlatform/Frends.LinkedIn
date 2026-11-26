@@ -6,14 +6,14 @@ namespace Frends.LinkedIn.SearchAdAccounts;
 internal class HttpClientFactory : LinkedInHttpClientFactory
 {
     /// <summary>
-    /// Creates an HTTP client using the supplied options.
+    /// Creates an HTTP client using the supplied connection settings.
     /// </summary>
-    /// <param name="options">Request options.</param>
+    /// <param name="connection">Connection settings.</param>
     /// <returns>A configured HTTP client.</returns>
-    public HttpClient CreateClient(Options options)
+    public HttpClient CreateClient(Connection connection)
     {
         var handler = new HttpClientHandler();
-        handler.SetHandlerSettingsBasedOnOptions(options);
+        handler.SetHandlerSettingsBasedOnConnection(connection);
         return new HttpClient(handler);
     }
 }

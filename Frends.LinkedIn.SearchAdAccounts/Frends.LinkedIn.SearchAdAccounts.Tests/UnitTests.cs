@@ -16,6 +16,7 @@ namespace Frends.LinkedIn.SearchAdAccounts.Tests;
 internal class UnitTests
 {
     private static int nextTimeout = 100;
+    private Connection connection;
     private Options options;
     private MockHttpMessageHandler handler;
 
@@ -27,14 +28,13 @@ internal class UnitTests
     {
         this.handler = new MockHttpMessageHandler();
         LinkedIn.ClientFactory = new MockHttpClientFactory(this.handler);
-        this.options = new Options
+        this.connection = new Connection
         {
             LinkedInAPIVersion = "202309",
             Token = "test-token",
-            ThrowExceptionOnErrorResponse = true,
             ConnectionTimeoutSeconds = Interlocked.Increment(ref nextTimeout),
-            ThrowErrorOnFailure = false,
         };
+        this.options = new Options { ThrowErrorOnFailure = false };
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ internal class UnitTests
             StatusFilters = new[] { new StatusFilter { AccountStatus = AccountStatus.ACTIVE } },
         };
 
-        var result = await LinkedIn.SearchAdAccounts(input, this.options, CancellationToken.None);
+        var result = await LinkedIn.SearchAdAccounts(input, this.connection, this.options, CancellationToken.None);
 
         ClassicAssert.IsTrue(result.Success);
         ClassicAssert.AreEqual(200, result.StatusCode);
@@ -83,9 +83,8 @@ internal class UnitTests
     public async Task SearchAdAccounts_EmptyResponseBodyReturnsSuccess()
     {
         this.handler.ResponseFactory = (_, _) => Task.FromResult(CreateResponse(HttpStatusCode.NoContent, string.Empty));
-        this.options.ThrowExceptionOnErrorResponse = false;
 
-        var result = await LinkedIn.SearchAdAccounts(new Input(), this.options, CancellationToken.None);
+        var result = await LinkedIn.SearchAdAccounts(new Input(), this.connection, this.options, CancellationToken.None);
 
         ClassicAssert.IsTrue(result.Success);
         ClassicAssert.AreEqual(204, result.StatusCode);
@@ -103,7 +102,7 @@ internal class UnitTests
             Task.FromResult(CreateResponse(HttpStatusCode.BadRequest, """{"message":"invalid request"}"""));
         this.options.ErrorMessageOnFailure = "Search failed";
 
-        var result = await LinkedIn.SearchAdAccounts(new Input(), this.options, CancellationToken.None);
+        var result = await LinkedIn.SearchAdAccounts(new Input(), this.connection, this.options, CancellationToken.None);
 
         ClassicAssert.IsFalse(result.Success);
         ClassicAssert.IsInstanceOf<WebException>(result.Error.AdditionalInfo);
@@ -121,7 +120,7 @@ internal class UnitTests
         this.options.ThrowErrorOnFailure = true;
 
         Assert.ThrowsAsync<WebException>(async () =>
-            await LinkedIn.SearchAdAccounts(new Input(), this.options, CancellationToken.None));
+            await LinkedIn.SearchAdAccounts(new Input(), this.connection, this.options, CancellationToken.None));
     }
 
     /// <summary>
@@ -133,7 +132,7 @@ internal class UnitTests
     {
         this.handler.ResponseFactory = (_, _) => Task.FromResult(CreateResponse(HttpStatusCode.OK, "not json"));
 
-        var result = await LinkedIn.SearchAdAccounts(new Input(), this.options, CancellationToken.None);
+        var result = await LinkedIn.SearchAdAccounts(new Input(), this.connection, this.options, CancellationToken.None);
 
         ClassicAssert.IsFalse(result.Success);
         ClassicAssert.IsInstanceOf<JsonReaderException>(result.Error.AdditionalInfo);
@@ -149,7 +148,7 @@ internal class UnitTests
         cancellationSource.Cancel();
 
         Assert.ThrowsAsync<OperationCanceledException>(async () =>
-            await LinkedIn.SearchAdAccounts(new Input(), this.options, cancellationSource.Token));
+            await LinkedIn.SearchAdAccounts(new Input(), this.connection, this.options, cancellationSource.Token));
     }
 
     /// <summary>
@@ -161,7 +160,7 @@ internal class UnitTests
     {
         this.handler.ResponseFactory = (_, _) => Task.FromException<HttpResponseMessage>(new TaskCanceledException());
 
-        var result = await LinkedIn.SearchAdAccounts(new Input(), this.options, CancellationToken.None);
+        var result = await LinkedIn.SearchAdAccounts(new Input(), this.connection, this.options, CancellationToken.None);
 
         ClassicAssert.IsFalse(result.Success);
         ClassicAssert.IsInstanceOf<ArgumentException>(result.Error.AdditionalInfo);
@@ -173,7 +172,7 @@ internal class UnitTests
     [Test]
     public void HttpClientFactory_AppliesOptions()
     {
-        var options = new Options
+        var connection = new Connection
         {
             AllowInvalidCertificate = true,
             AutomaticCookieHandling = false,
@@ -183,9 +182,9 @@ internal class UnitTests
         };
 
         using var handler = new HttpClientHandler();
-        handler.SetHandlerSettingsBasedOnOptions(options);
-        using var client = new HttpClientFactory().CreateClient(options);
-        client.SetDefaultRequestHeadersBasedOnOptions(options);
+        handler.SetHandlerSettingsBasedOnConnection(connection);
+        using var client = new HttpClientFactory().CreateClient(connection);
+        client.SetDefaultRequestHeadersBasedOnConnection(connection);
 
         ClassicAssert.IsFalse(handler.AllowAutoRedirect);
         ClassicAssert.IsFalse(handler.UseCookies);
@@ -212,7 +211,7 @@ internal class UnitTests
             this.innerHandler = handler;
         }
 
-        public HttpClient CreateClient(Options options) => new(this.innerHandler, disposeHandler: false);
+        public HttpClient CreateClient(Connection connection) => new(this.innerHandler, disposeHandler: false);
     }
 
     private sealed class MockHttpMessageHandler : HttpMessageHandler

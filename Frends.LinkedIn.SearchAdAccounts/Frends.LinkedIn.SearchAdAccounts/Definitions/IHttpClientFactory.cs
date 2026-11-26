@@ -6,9 +6,9 @@ namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
 public interface IHttpClientFactory
 {
     /// <summary>
-    /// Creates an HTTP client using the supplied options.
+    /// Creates an HTTP client using the supplied connection settings.
     /// </summary>
-    /// <param name="options">Request options.</param>
+    /// <param name="connection">Connection settings.</param>
     /// <returns>A configured HTTP client.</returns>
-    HttpClient CreateClient(Options options);
+    HttpClient CreateClient(Connection connection);
 }
