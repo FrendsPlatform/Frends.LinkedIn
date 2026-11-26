@@ -3,10 +3,9 @@
 ## [2.0.0] - 2026-11-21
 ### Changed
 - **[Breaking Change]** Updated the task input parameter to `Input`
-- Replaced the `ThrowExceptionOnErrorResponse` option with standardized error options.
 - Updated the task to .NET 8
-- Moved the connection-related properties `LinkedInAPIVersion`, `Token`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`, `AllowInvalidResponseContentTypeCharSet` and `AutomaticCookieHandling` from `Options` to the new `Connection` class. The task now takes `Input`, `Connection` and `Options` parameters.
-- Removed the `ThrowExceptionOnErrorResponse` option. The task now always treats a non-2xx response as a failure.
+- **[Breaking Change]** Moved the connection-related properties `LinkedInAPIVersion`, `Token`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`, `AllowInvalidResponseContentTypeCharSet` and `AutomaticCookieHandling` from `Options` to the new `Connection` class. The task now takes `Input`, `Connection` and `Options` parameters.
+- **[Breaking Change]** Removed the `ThrowExceptionOnErrorResponse` option. The task now always treats a non-2xx response as a failure (handled according to `ThrowErrorOnFailure`).
 
 ### Added
 
