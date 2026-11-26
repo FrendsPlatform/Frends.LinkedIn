@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0] - 2026-11-21
+### Changed
+- **[Breaking Change]** Renamed the task input parameter from `Filter` to `Input`.
+- **[Breaking Change]** Moved connection-related properties from `Options` to the new `Connection` parameter: `LinkedInAPIVersion`, `Token`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`, `AllowInvalidResponseContentTypeCharSet` and `AutomaticCookieHandling`. The task method now takes `Input`, `Connection` and `Options`.
+- **[Breaking Change]** Removed the `ThrowExceptionOnErrorResponse` option. A non-2xx response now always results in an exception (handled according to `ThrowErrorOnFailure`).
+- Upgraded the Task to .NET 8
+
+### Added
+- Added Success and Error properties to the result. The task can now return Success = false with error details in Error instead of throwing.
+- Added ThrowErrorOnFailure option (default true) to choose whether failures throw an exception or are returned in the result.
+- Added ErrorMessageOnFailure option to specify a custom error message used when a failure occurs.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:
