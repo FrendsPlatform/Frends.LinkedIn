@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.0] - 2026-11-21
+### Changed
+- Task now targets only .NET 8
+- **[Breaking Change]** Task parameters were reorganized into `Input`, `Connection` and `Options`:
+  - Renamed: the `Filter` parameter was renamed to `Input` (properties unchanged: `AdAccountId`, `Reference`, `Name`, `Id`, `TypeFilters`, `StatusFilters`).
+  - Moved from `Options` to `Connection`: `Token`, `LinkedInAPIVersion`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`, `AutomaticCookieHandling`.
+  - Removed: `Options.ThrowExceptionOnErrorResponse` (a response with a non-2xx status code now always results in an exception being raised), `Options.AllowInvalidResponseContentTypeCharSet` (unused).
+  - Added: `Options.ThrowErrorOnFailure` (default `true`; when `false`, failures are returned as `Result.Success = false` with `Result.Error` instead of an exception) and `Options.ErrorMessageOnFailure` (overrides the error message).
+- Result now includes new `Success` and `Error` properties.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:
