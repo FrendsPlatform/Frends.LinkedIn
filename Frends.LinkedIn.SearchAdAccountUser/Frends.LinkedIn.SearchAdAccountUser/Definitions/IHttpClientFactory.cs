@@ -1,17 +1,16 @@
-﻿namespace Frends.LinkedIn.SearchAdAccountUser.Definitions
-{
-    using System.Net.Http;
+using System.Net.Http;
 
+namespace Frends.LinkedIn.SearchAdAccountUser.Definitions;
+
+/// <summary>
+/// HTTP client factory interface.
+/// </summary>
+public interface IHttpClientFactory
+{
     /// <summary>
-    /// Http Client Factory Interface.
+    /// Create an HTTP client.
     /// </summary>
-    public interface IHttpClientFactory
-    {
-        /// <summary>
-        /// Create client
-        /// </summary>
-        /// <param name="options">Option parameters</param>
-        /// <returns>HttpClient object</returns>
-        HttpClient CreateClient(Options options);
-    }
+    /// <param name="connection">Connection parameters.</param>
+    /// <returns>An HTTP client.</returns>
+    HttpClient CreateClient(Connection connection);
 }

@@ -1,13 +1,13 @@
-﻿namespace Frends.LinkedIn.SearchAdAccountUser.Definitions
+namespace Frends.LinkedIn.SearchAdAccountUser.Definitions;
+
+/// <summary>
+/// Account URN used to search for LinkedIn ad account users.
+/// </summary>
+public class AccountUrn
 {
     /// <summary>
-    /// Class for Accoutn Urn.
+    /// URN for the account.
     /// </summary>
-    public class AccountUrn
-    {
-        /// <summary>
-        /// Urn for the account.
-        /// </summary>
-        public string Urn { get; set; }
-    }
+    /// <example>urn:li:sponsoredAccount:516986977</example>
+    public string Urn { get; set; }
 }
