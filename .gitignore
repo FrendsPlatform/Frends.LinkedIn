@@ -241,5 +241,5 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 
-# JetBrains Rider / IDEs
+# JetBrains Rider / IDEA
 .idea/
