@@ -1,4 +1,4 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
 
 /// <summary>
 /// LinkedIn advertising account statuses.
