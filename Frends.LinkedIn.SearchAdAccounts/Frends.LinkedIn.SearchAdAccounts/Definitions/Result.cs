@@ -1,35 +1,37 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+/// <summary>
+/// Result of a LinkedIn ad account search.
+/// </summary>
+public class Result
 {
-    using System.Collections.Generic;
+    /// <summary>
+    /// Gets or sets a value indicating whether the task completed successfully.
+    /// </summary>
+    /// <example>true</example>
+    public bool Success { get; set; }
 
     /// <summary>
-    /// Result class containing properties with private setters.
+    /// Gets or sets the body of the response, containing paging and account elements.
     /// </summary>
-    public class Result
-    {
-        internal Result(object body, Dictionary<string, string> headers, int statusCode)
-        {
-            Body = body;
-            Headers = headers;
-            StatusCode = statusCode;
-        }
+    /// <example>{"paging":{"start":0,"count":10,"total":1},"elements":[{"id":"512500029"}]}</example>
+    public dynamic Body { get; set; }
 
-        /// <summary>
-        /// Body of response. Response body contains two properties: paging and elements.
-        /// </summary>
-        /// <example>{"paging": {"start": 0, "count":10, "links": [], "total": 1}, "elements": [{"totalBudget": ...}]}</example>
-        public dynamic Body { get; private set; }
+    /// <summary>
+    /// Gets or sets the headers returned by LinkedIn.
+    /// </summary>
+    /// <example>{"content-type":"application/json"}</example>
+    public Dictionary<string, string> Headers { get; set; }
 
-        /// <summary>
-        /// Headers of response
-        /// </summary>
-        /// <example>{[ "content-type": "application/json", ... ]}</example>
-        public Dictionary<string, string> Headers { get; private set; }
+    /// <summary>
+    /// Gets or sets the HTTP status code returned by LinkedIn.
+    /// </summary>
+    /// <example>200</example>
+    public int StatusCode { get; set; }
 
-        /// <summary>
-        /// Status code of the response.
-        /// </summary>
-        /// <example>200</example>
-        public int StatusCode { get; private set; }
-    }
+    /// <summary>
+    /// Gets or sets the details of an error that occurred during task execution.
+    /// </summary>
+    /// <example>null</example>
+    public Error Error { get; set; }
 }

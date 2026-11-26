@@ -1,13 +1,13 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+/// <summary>
+/// LinkedIn advertising account types.
+/// </summary>
+public enum AccountType
 {
-    /// <summary>
-    /// Campaign type filters.
-    /// </summary>
-    public enum AccountType
-    {
-#pragma warning disable CS1591 // self-explanatory
-        BUSINESS,
-        ENTERPRISE,
-#pragma warning restore CS1591 // self-explanatory
-    }
+    /// <summary>Business account.</summary>
+    BUSINESS,
+
+    /// <summary>Enterprise account.</summary>
+    ENTERPRISE,
 }

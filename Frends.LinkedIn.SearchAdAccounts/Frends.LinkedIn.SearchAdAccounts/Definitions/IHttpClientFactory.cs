@@ -1,17 +1,14 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
-{
-    using System.Net.Http;
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
 
+/// <summary>
+/// Creates HTTP clients for LinkedIn requests.
+/// </summary>
+public interface IHttpClientFactory
+{
     /// <summary>
-    /// Http Client Factory Interface.
+    /// Creates an HTTP client using the supplied connection settings.
     /// </summary>
-    public interface IHttpClientFactory
-    {
-        /// <summary>
-        /// Create client
-        /// </summary>
-        /// <param name="options">Option parameters</param>
-        /// <returns>HttpClient object</returns>
-        HttpClient CreateClient(Options options);
-    }
+    /// <param name="connection">Connection settings.</param>
+    /// <returns>A configured HTTP client.</returns>
+    HttpClient CreateClient(Connection connection);
 }

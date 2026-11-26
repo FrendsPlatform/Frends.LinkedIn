@@ -1,0 +1,56 @@
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+/// <summary>
+/// Connection parameters for LinkedIn requests.
+/// </summary>
+public class Connection
+{
+    /// <summary>
+    /// Gets or sets the API version used in the request. API versions use the format YYYYMM or YYYYMM.RR.
+    /// </summary>
+    /// <example>202309</example>
+    [DefaultValue("202309")]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string LinkedInAPIVersion { get; set; }
+
+    /// <summary>
+    /// Gets or sets the access token used in the Authorization header.
+    /// </summary>
+    /// <example>A valid LinkedIn access token</example>
+    [PasswordPropertyText]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string Token { get; set; }
+
+    /// <summary>
+    /// Gets or sets the timeout in seconds for the connection and operation.
+    /// </summary>
+    /// <example>30</example>
+    [DefaultValue(30)]
+    public int ConnectionTimeoutSeconds { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether redirects are followed. When false, redirect responses are returned to the application.
+    /// </summary>
+    /// <example>true</example>
+    [DefaultValue(true)]
+    public bool FollowRedirects { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the request can continue when the server certificate is invalid.
+    /// </summary>
+    /// <example>false</example>
+    public bool AllowInvalidCertificate { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to override faulty response content-type charset values.
+    /// </summary>
+    /// <example>false</example>
+    public bool AllowInvalidResponseContentTypeCharSet { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether cookies are handled automatically.
+    /// </summary>
+    /// <example>true</example>
+    [DefaultValue(true)]
+    public bool AutomaticCookieHandling { get; set; } = true;
+}

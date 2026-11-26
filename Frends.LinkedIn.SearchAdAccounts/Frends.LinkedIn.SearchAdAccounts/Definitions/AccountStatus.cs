@@ -1,16 +1,22 @@
-﻿namespace Frends.LinkedIn.SearchAdAccounts.Definitions
+namespace Frends.LinkedIn.SearchAdAccounts.Definitions;
+
+/// <summary>
+/// LinkedIn advertising account statuses.
+/// </summary>
+public enum AccountStatus
 {
-    /// <summary>
-    /// Campaign status filters.
-    /// </summary>
-    public enum AccountStatus
-    {
-#pragma warning disable CS1591 // self-explanatory
-        ACTIVE,
-        DRAFT,
-        CANCELED,
-        PENDING_DELETION,
-        REMOVED,
-#pragma warning restore CS1591 // self-explanatory
-    }
+    /// <summary>Account is active.</summary>
+    ACTIVE,
+
+    /// <summary>Account is a draft.</summary>
+    DRAFT,
+
+    /// <summary>Account was canceled.</summary>
+    CANCELED,
+
+    /// <summary>Account is pending deletion.</summary>
+    PENDING_DELETION,
+
+    /// <summary>Account was removed.</summary>
+    REMOVED,
 }
