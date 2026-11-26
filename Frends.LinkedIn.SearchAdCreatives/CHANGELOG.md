@@ -9,11 +9,21 @@
 
 ### Added
 
-- Added Success and Error properties to the result. The task can now return Success = false with error details in Error
+- Added `Success` and `Error` properties to the result. The task can now return Success = false with error details in Error
   instead of throwing.
-- Added ThrowErrorOnFailure option (default true) to choose whether failures throw an exception or are returned in the
+- Added `ThrowErrorOnFailure` option (default true) to choose whether failures throw an exception or are returned in the
   result.
-- Added ErrorMessageOnFailure option to specify a custom error message used when a failure occurs.
+- Added `ErrorMessageOnFailure` option to specify a custom error message used when a failure occurs.
+
+### Removed
+
+- Removed `ThrowExceptionOnErrorResponse` from Options. A non-2xx response now always throws an exception (handled
+  according to `ThrowErrorOnFailure`).
+
+### Moved
+
+- Moved the following properties from Options to Connection: `LinkedInAPIVersion`, `ConnectionTimeoutSeconds`,
+  `FollowRedirects`, `AllowInvalidCertificate`, `AllowInvalidResponseContentTypeCharSet`, `AutomaticCookieHandling`.
 
 ## [1.1.0] - 2025-03-18
 

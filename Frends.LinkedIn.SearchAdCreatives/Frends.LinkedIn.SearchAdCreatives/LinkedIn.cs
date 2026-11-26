@@ -32,8 +32,8 @@ public static class LinkedIn
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.LinkedIn.SearchAdCreatives).
     /// </summary>
     /// <param name="input">Search criteria.</param>
-    /// <param name="connection">LinkedIn authentication parameters.</param>
-    /// <param name="options">Additional request and error-handling options.</param>
+    /// <param name="connection">LinkedIn connection and authentication parameters.</param>
+    /// <param name="options">Error-handling options.</param>
     /// <param name="cancellationToken">Cancellation token provided by Frends.</param>
     /// <returns>object { bool Success, object Body, Dictionary(string, string) Headers, int StatusCode, object Error { string Message, Exception AdditionalInfo } }</returns>
     public static async Task<Result> SearchAdCreatives(
@@ -45,7 +45,7 @@ public static class LinkedIn
         try
         {
             var uri = FormRequestURI(input);
-            var client = GetHttpClientForOptions(options, input.GetSingleCreative);
+            var client = GetHttpClientForConnection(connection, input.GetSingleCreative);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", connection.Token);
 
             using var responseMessage = await GetHttpRequestResponseAsync(client, uri, cancellationToken)
@@ -62,7 +62,7 @@ public static class LinkedIn
                 Error = null,
             };
 
-            if (!responseMessage.IsSuccessStatusCode && options.ThrowExceptionOnErrorResponse)
+            if (!responseMessage.IsSuccessStatusCode)
             {
                 throw new WebException(
                     $"Request to '{uri}' failed with status code {(int)responseMessage.StatusCode}. Response body: {result.Body}");
@@ -123,24 +123,24 @@ public static class LinkedIn
         return allHeaders;
     }
 
-    private static HttpClient GetHttpClientForOptions(Options options, bool getSingleCreative)
+    private static HttpClient GetHttpClientForConnection(Connection connection, bool getSingleCreative)
     {
-        var cacheKey = GetHttpClientCacheKey(options);
+        var cacheKey = GetHttpClientCacheKey(connection);
 
         if (ClientCache.Get(cacheKey) is HttpClient cachedClient)
             return cachedClient;
 
-        var httpClient = ClientFactory.CreateClient(options);
-        httpClient.SetDefaultRequestHeadersBasedOnOptions(options, getSingleCreative);
+        var httpClient = ClientFactory.CreateClient(connection);
+        httpClient.SetDefaultRequestHeadersBasedOnConnection(connection, getSingleCreative);
         ClientCache.Add(cacheKey, httpClient, CachePolicy);
         return httpClient;
     }
 
-    private static string GetHttpClientCacheKey(Options options)
+    private static string GetHttpClientCacheKey(Connection connection)
     {
-        return $"{options.ConnectionTimeoutSeconds}"
-               + $":{options.FollowRedirects}:{options.AllowInvalidCertificate}:{options.AllowInvalidResponseContentTypeCharSet}"
-               + $":{options.ThrowExceptionOnErrorResponse}:{options.AutomaticCookieHandling}:{options.LinkedInAPIVersion}";
+        return $"{connection.ConnectionTimeoutSeconds}"
+               + $":{connection.FollowRedirects}:{connection.AllowInvalidCertificate}:{connection.AllowInvalidResponseContentTypeCharSet}"
+               + $":{connection.AutomaticCookieHandling}:{connection.LinkedInAPIVersion}";
     }
 
     private static string FormRequestURI(Input input)

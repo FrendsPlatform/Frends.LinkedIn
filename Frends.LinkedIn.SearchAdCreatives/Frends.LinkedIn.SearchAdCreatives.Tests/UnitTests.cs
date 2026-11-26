@@ -18,6 +18,7 @@ internal class UnitTests
 {
     private static int nextTimeout;
     private Input input;
+    private Connection connection;
     private Options options;
     private MockHttpClientFactory factory;
 
@@ -32,16 +33,19 @@ internal class UnitTests
             AdAccountId = "512500029",
             AdCampaignUrns = Array.Empty<AdCampaign>(),
         };
-        options = new Options
+        connection = new Connection
         {
+            Token = "linkedin-access-token",
             LinkedInAPIVersion = "202309",
             ConnectionTimeoutSeconds = 30 + Interlocked.Increment(ref nextTimeout),
-            ThrowExceptionOnErrorResponse = false,
-            ThrowErrorOnFailure = false,
             AllowInvalidCertificate = false,
             AllowInvalidResponseContentTypeCharSet = false,
             AutomaticCookieHandling = true,
             FollowRedirects = true,
+        };
+        options = new Options
+        {
+            ThrowErrorOnFailure = false,
         };
         factory = new MockHttpClientFactory((_, _) =>
             Task.FromResult(CreateResponse(HttpStatusCode.OK, """{"elements":[]}""")));
@@ -72,7 +76,7 @@ internal class UnitTests
         });
         LinkedIn.ClientFactory = factory;
 
-        var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
+        var result = await LinkedIn.SearchAdCreatives(input, connection, options, default);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.StatusCode, Is.EqualTo(200));
@@ -101,7 +105,7 @@ internal class UnitTests
         });
         LinkedIn.ClientFactory = factory;
 
-        var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
+        var result = await LinkedIn.SearchAdCreatives(input, connection, options, default);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Body.ToString(), Is.Empty);
@@ -111,17 +115,16 @@ internal class UnitTests
     }
 
     /// <summary>
-    /// Verifies that a configured unsuccessful HTTP response becomes a failure result.
+    /// Verifies that an unsuccessful HTTP response becomes a failure result.
     /// </summary>
     [Test]
-    public async Task SearchReturnsFailureForUnsuccessfulResponseWhenConfigured()
+    public async Task SearchReturnsFailureForUnsuccessfulResponse()
     {
-        options.ThrowExceptionOnErrorResponse = true;
         factory = new MockHttpClientFactory((_, _) =>
             Task.FromResult(CreateResponse(HttpStatusCode.NotFound, """{"message":"missing"}""")));
         LinkedIn.ClientFactory = factory;
 
-        var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
+        var result = await LinkedIn.SearchAdCreatives(input, connection, options, default);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("status code 404"));
@@ -137,7 +140,7 @@ internal class UnitTests
         factory = new MockHttpClientFactory((_, _) => Task.FromResult(CreateResponse(HttpStatusCode.OK, "not json")));
         LinkedIn.ClientFactory = factory;
 
-        var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
+        var result = await LinkedIn.SearchAdCreatives(input, connection, options, default);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("Unable to read response message as json"));
@@ -153,7 +156,7 @@ internal class UnitTests
             Task.FromException<HttpResponseMessage>(new TaskCanceledException("request timed out")));
         LinkedIn.ClientFactory = factory;
 
-        var result = await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
+        var result = await LinkedIn.SearchAdCreatives(input, connection, options, default);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.AdditionalInfo, Is.TypeOf<ArgumentException>());
@@ -171,7 +174,7 @@ internal class UnitTests
         LinkedIn.ClientFactory = factory;
 
         var exception = await Assert.ThrowsAsync<Exception>(async () =>
-            await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default));
+            await LinkedIn.SearchAdCreatives(input, connection, options, default));
 
         Assert.That(exception.Message, Is.EqualTo("Creative search failed"));
     }
@@ -187,7 +190,7 @@ internal class UnitTests
 
         await Assert.ThrowsAsync<OperationCanceledException>(async () => await LinkedIn.SearchAdCreatives(
             input,
-            CreateConnection(),
+            connection,
             options,
             cancellationSource.Token));
     }
@@ -198,8 +201,8 @@ internal class UnitTests
     [Test]
     public async Task SearchReusesClientForMatchingOptions()
     {
-        await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
-        await LinkedIn.SearchAdCreatives(input, CreateConnection(), options, default);
+        await LinkedIn.SearchAdCreatives(input, connection, options, default);
+        await LinkedIn.SearchAdCreatives(input, connection, options, default);
 
         Assert.That(factory.CreateCount, Is.EqualTo(1));
         Assert.That(factory.RequestCount, Is.EqualTo(2));
@@ -212,26 +215,21 @@ internal class UnitTests
     public void HttpClientConfigurationUsesOptions()
     {
         using var handler = new HttpClientHandler();
-        options.AllowInvalidCertificate = true;
-        options.AutomaticCookieHandling = false;
-        options.FollowRedirects = false;
-        handler.SetHandlerSettingsBasedOnOptions(options);
+        connection.AllowInvalidCertificate = true;
+        connection.AutomaticCookieHandling = false;
+        connection.FollowRedirects = false;
+        handler.SetHandlerSettingsBasedOnConnection(connection);
 
         Assert.That(handler.AllowAutoRedirect, Is.False);
         Assert.That(handler.UseCookies, Is.False);
         Assert.That(handler.ServerCertificateCustomValidationCallback, Is.Not.Null);
 
-        using var client = new HttpClientFactory().CreateClient(options);
-        client.SetDefaultRequestHeadersBasedOnOptions(options, getSingleCreative: false);
+        using var client = new HttpClientFactory().CreateClient(connection);
+        client.SetDefaultRequestHeadersBasedOnConnection(connection, getSingleCreative: false);
 
-        Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(options.ConnectionTimeoutSeconds)));
+        Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(connection.ConnectionTimeoutSeconds)));
         Assert.That(client.DefaultRequestHeaders.GetValues("LinkedIn-Version"), Does.Contain("202309"));
         Assert.That(client.DefaultRequestHeaders.GetValues("X-RestLi-Method"), Does.Contain("FINDER"));
-    }
-
-    private static Connection CreateConnection()
-    {
-        return new Connection { Token = "linkedin-access-token" };
     }
 
     private static HttpResponseMessage CreateResponse(HttpStatusCode statusCode, string content)
@@ -255,7 +253,7 @@ internal class UnitTests
 
         internal int RequestCount { get; private set; }
 
-        public HttpClient CreateClient(Options options)
+        public HttpClient CreateClient(Connection connection)
         {
             CreateCount++;
             var handler = new MockHttpMessageHandler(sendAsync, () => RequestCount++);
