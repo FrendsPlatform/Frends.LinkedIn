@@ -1,9 +1,9 @@
 # Changelog
 
-## [1.2.0] - 2026-11-21
+## [2.0.0] - 2026-11-21
 ### Changed
 - Updated the task to target .NET 8.
-- Moved the following properties from `Options` to the new `Connection` class (new `Connection` parameter tab):
+- **[Breaking Change]** Moved the following properties from `Options` to the new `Connection` class (new `Connection` parameter tab):
   `LinkedInAPIVersion`, `Token`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`,
   `AllowInvalidResponseContentTypeCharSet`, `AutomaticCookieHandling`.
 
