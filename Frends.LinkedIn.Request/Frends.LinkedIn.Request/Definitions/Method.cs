@@ -1,49 +1,48 @@
-﻿namespace Frends.LinkedIn.Request.Definitions
+namespace Frends.LinkedIn.Request.Definitions;
+
+/// <summary>
+/// Type of HTTP Request
+/// </summary>
+/// <example>GET</example>
+public enum Method
 {
     /// <summary>
-    /// Type of HTTP Request
+    /// GET Request.
     /// </summary>
-    /// <example>GET</example>
-    public enum Method
-    {
-        /// <summary>
-        /// GET Request.
-        /// </summary>
-        GET,
+    GET,
 
-        /// <summary>
-        /// POST Request.
-        /// </summary>
-        POST,
+    /// <summary>
+    /// POST Request.
+    /// </summary>
+    POST,
 
-        /// <summary>
-        /// PUT Request.
-        /// </summary>
-        PUT,
+    /// <summary>
+    /// PUT Request.
+    /// </summary>
+    PUT,
 
-        /// <summary>
-        /// PATCH Request.
-        /// </summary>
-        PATCH,
+    /// <summary>
+    /// PATCH Request.
+    /// </summary>
+    PATCH,
 
-        /// <summary>
-        /// DELETE Request.
-        /// </summary>
-        DELETE,
+    /// <summary>
+    /// DELETE Request.
+    /// </summary>
+    DELETE,
 
-        /// <summary>
-        /// HEAD Request.
-        /// </summary>
-        HEAD,
+    /// <summary>
+    /// HEAD Request.
+    /// </summary>
+    HEAD,
 
-        /// <summary>
-        /// OPTIONS Request.
-        /// </summary>
-        OPTIONS,
+    /// <summary>
+    /// OPTIONS Request.
+    /// </summary>
+    OPTIONS,
 
-        /// <summary>
-        /// CONNECT Request.
-        /// </summary>
-        CONNECT,
-    }
+    /// <summary>
+    /// CONNECT Request.
+    /// </summary>
+    CONNECT,
 }

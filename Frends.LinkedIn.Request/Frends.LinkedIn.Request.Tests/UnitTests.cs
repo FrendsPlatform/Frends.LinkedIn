@@ -1,62 +1,381 @@
-namespace Frends.LinkedIn.Request.Tests;
-
 using System;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Frends.LinkedIn.Request.Definitions;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
+
+namespace Frends.LinkedIn.Request.Tests;
 
 [TestFixture]
 internal class UnitTests
 {
-    private static Options _options;
-
-    [SetUp]
-    public void Setup()
+    [Test]
+    public async Task RequestReturnsParsedResponseAndSendsHeaders()
     {
-        var accessToken = Environment.GetEnvironmentVariable("Frends_LinkedIn_AccessToken");
-
-        _options = new Options
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.OK, "{\"value\":42}");
+        using var client = new HttpClient(handler);
+        var input = new Input
         {
-            LinkedInAPIVersion = "202309",
-            Token = accessToken,
-            ThrowExceptionOnErrorResponse = true,
-            ConnectionTimeoutSeconds = 30,
-            AllowInvalidCertificate = true,
-            AllowInvalidResponseContentTypeCharSet = true,
-            AutomaticCookieHandling = true,
-            FollowRedirects = true,
+            Method = Method.GET,
+            Url = "https://api.linkedin.test/rest/resource",
+            Headers = new[]
+            {
+                new Header
+                {
+                    Name = "X-Custom",
+                    Value = "custom-value",
+                },
+            },
         };
+        var options = DefaultOptions();
+
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), options, CancellationToken.None, client);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Error, Is.Null);
+        Assert.That(result.StatusCode, Is.EqualTo(200));
+        Assert.That(result.Body.ToString(), Does.Contain("\"value\": 42"));
+        Assert.That(handler.Method, Is.EqualTo("GET"));
+        Assert.That(handler.RequestUri, Is.EqualTo(input.Url));
+        Assert.That(handler.Authorization, Is.EqualTo("Bearer test-token"));
+        Assert.That(handler.RequestHeaders["X-Custom"], Is.EqualTo("custom-value"));
+        Assert.That(result.Headers["X-Response"], Is.EqualTo("response-value"));
+        Assert.That(result.Headers["Content-Type"], Does.Contain("application/json"));
+        Assert.That(handler.RequestBody, Is.Null);
     }
 
     [Test]
-    public async Task Test()
+    public async Task RequestSendsMessageForMethodsThatAllowContent()
     {
-        var urls = new string[]
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.OK, "\"accepted\"");
+        using var client = new HttpClient(handler);
+        var input = new Input
         {
-            "https://api.linkedin.com/rest/adAccounts?q=search&search=(type:(values:List(ENTERPRISE)))",
-            "https://api.linkedin.com/rest/adAccounts?q=search&search=(status:(values:List(ACTIVE)))",
-            "https://api.linkedin.com/rest/adAccounts?q=search&search=()",
-            "https://api.linkedin.com/rest/adAccounts?q=search&search=(status:(values:List(DRAFT)))",
-            "https://api.linkedin.com/rest/adAccounts?q=search&search=(id:(values:List(512500029)))",
-            "https://api.linkedin.com/rest/adAccounts?q=search&search=(name:(values:List(FrendsTasks Ad Account)))",
-            "https://api.linkedin.com/rest/adAccounts/512500029/creatives?campaigns=List(urn%3ali%3asponsoredCampaign%3a99966515)&q=criteria",
-            "https://api.linkedin.com/rest/adAccounts/512500029/creatives?creatives=List(urn%3ali%3asponsoredCreative%3a119962155)&q=criteria",
+            Method = Method.POST,
+            Url = "https://api.linkedin.test/rest/resource",
+            Message = "{\"name\":\"sample\"}",
+            Headers = new[]
+            {
+                new Header
+                {
+                    Name = "Content-Type",
+                    Value = "application/json; charset=utf-8",
+                },
+                new Header
+                {
+                    Name = "X-Custom",
+                    Value = "custom-value",
+                },
+            },
         };
 
-        Input input;
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), DefaultOptions(), CancellationToken.None, client);
 
-        foreach (var url in urls)
+        Assert.That(result.Success, Is.True);
+        Assert.That(handler.Method, Is.EqualTo("POST"));
+        Assert.That(handler.RequestBody, Is.EqualTo(input.Message));
+        Assert.That(handler.ContentType, Does.Contain("application/json"));
+        Assert.That(handler.RequestHeaders["X-Custom"], Is.EqualTo("custom-value"));
+    }
+
+    [Test]
+    public async Task RequestReturnsEmptyStringForEmptyResponseBody()
+    {
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.NoContent, "  ");
+        using var client = new HttpClient(handler);
+
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), DefaultOptions(), CancellationToken.None, client);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Body.ToString(), Is.Empty);
+    }
+
+    [Test]
+    public async Task RequestReturnsFailureForInvalidJsonWhenConfiguredNotToThrow()
+    {
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.OK, "not-json");
+        using var client = new HttpClient(handler);
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), options, CancellationToken.None, client);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("Unable to read response message as json"));
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<Newtonsoft.Json.JsonReaderException>());
+    }
+
+    [Test]
+    public async Task RequestIncludesCustomErrorMessageForHttpFailure()
+    {
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.Forbidden, "{\"error\":\"denied\"}");
+        using var client = new HttpClient(handler);
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+        options.ErrorMessageOnFailure = "LinkedIn request failed";
+
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), options, CancellationToken.None, client);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.StartWith("LinkedIn request failed:"));
+        Assert.That(result.Error.Message, Does.Contain("status code 403"));
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<WebException>());
+    }
+
+    [Test]
+    public async Task RequestThrowsOnNonSuccessStatusCode()
+    {
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.BadRequest, "{\"error\":\"bad request\"}");
+        using var client = new HttpClient(handler);
+
+        var actual = await Assert.ThrowsAsync<WebException>(async () =>
+            await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), DefaultOptions(), CancellationToken.None, client));
+
+        Assert.That(actual.Message, Does.Contain("status code 400"));
+    }
+
+    [Test]
+    public void RequestPropagatesCancellation()
+    {
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.OK, "{}");
+        using var client = new HttpClient(handler);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), DefaultOptions(), cancellation.Token, client));
+        Assert.That(handler.WasCalled, Is.False);
+    }
+
+    [Test]
+    public async Task RequestConvertsUnexpectedHttpCancellationToTimeoutFailure()
+    {
+        using var handler = new MockHttpMessageHandler(new TaskCanceledException("request timed out"));
+        using var client = new HttpClient(handler);
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+
+        var result = await LinkedIn.RequestWithHttpClient(DefaultInput(), DefaultConnection(), options, CancellationToken.None, client);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("most likely due to a timeout"));
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<ArgumentException>());
+    }
+
+    [Test]
+    public async Task RequestHandlesInvalidUrlAsFailure()
+    {
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.OK, "{}");
+        using var client = new HttpClient(handler);
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+        var input = DefaultInput();
+        input.Url = "not-an-absolute-url";
+
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), options, CancellationToken.None, client);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.Not.Null);
+        Assert.That(handler.WasCalled, Is.False);
+    }
+
+    [Test]
+    public async Task RequestHandlesDuplicateHeadersAsFailure()
+    {
+        using var handler = new MockHttpMessageHandler(HttpStatusCode.OK, "{}");
+        using var client = new HttpClient(handler);
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+        var input = DefaultInput();
+        input.Headers = new[]
         {
-            input = new Input
+            new Header
             {
-                Method = Method.GET,
-                Url = url,
-                Headers = Array.Empty<Header>(),
-            };
+                Name = "X-Duplicate",
+                Value = "one",
+            },
+            new Header
+            {
+                Name = "x-duplicate",
+                Value = "two",
+            },
+        };
 
-            var result = await LinkedIn.Request(input, _options, default);
-            ClassicAssert.AreEqual(200, result.StatusCode);
+        var result = await LinkedIn.RequestWithHttpClient(input, DefaultConnection(), options, CancellationToken.None, client);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<ArgumentException>());
+        Assert.That(handler.WasCalled, Is.False);
+    }
+
+    [Test]
+    public void HttpClientFactoryCreatesConfiguredClientAndRequestHeaders()
+    {
+        var connection = DefaultConnection();
+        connection.ConnectionTimeoutSeconds = 46;
+        var factory = new HttpClientFactory();
+
+        using var client = factory.CreateClient(connection);
+        client.SetDefaultRequestHeadersBasedOnConnection(connection);
+
+        Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(46)));
+        Assert.That(client.DefaultRequestHeaders.ExpectContinue, Is.False);
+        Assert.That(client.DefaultRequestHeaders.GetValues("LinkedIn-Version"), Is.EqualTo(new[] { "202309" }));
+        Assert.That(client.DefaultRequestHeaders.GetValues("X-Restli-Protocol-Version"), Is.EqualTo(new[] { "2.0.0" }));
+    }
+
+    [Test]
+    public void RequestClientCacheReusesClientForEquivalentConnection()
+    {
+        var connection = DefaultConnection();
+        connection.ConnectionTimeoutSeconds = 47;
+
+        var firstClient = LinkedIn.GetHttpClientForConnection(connection);
+        var secondClient = LinkedIn.GetHttpClientForConnection(connection);
+
+        Assert.That(secondClient, Is.SameAs(firstClient));
+        Assert.That(firstClient.Timeout, Is.EqualTo(TimeSpan.FromSeconds(47)));
+    }
+
+    [Test]
+    public void ErrorHandlerReturnsFailureWithOriginalException()
+    {
+        var exception = new InvalidOperationException("Request failed.");
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+        options.ErrorMessageOnFailure = "Custom message";
+
+        var result = exception.Handle(options);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Is.EqualTo("Custom message: Request failed."));
+        Assert.That(result.Error.AdditionalInfo, Is.SameAs(exception));
+    }
+
+    [Test]
+    public void ErrorHandlerRethrowsOriginalExceptionWhenConfigured()
+    {
+        var exception = new InvalidOperationException("Request failed.");
+
+        var actual = Assert.Throws<InvalidOperationException>(() => exception.Handle(DefaultOptions()));
+
+        Assert.That(actual, Is.SameAs(exception));
+    }
+
+    [Test]
+    public void ErrorHandlerPreservesCancellation()
+    {
+        var exception = new OperationCanceledException("Cancelled.");
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+
+        var actual = Assert.Throws<OperationCanceledException>(() => exception.Handle(options));
+
+        Assert.That(actual, Is.SameAs(exception));
+    }
+
+    [Test]
+    public void ErrorHandlerRejectsNullArguments()
+    {
+        Assert.Throws<ArgumentNullException>(() => ((Exception)null).Handle(DefaultOptions()));
+        Assert.Throws<ArgumentNullException>(() => new Exception().Handle(null));
+    }
+
+    private static Input DefaultInput()
+    {
+        return new Input
+        {
+            Method = Method.GET,
+            Url = "https://api.linkedin.test/rest/resource",
+            Headers = Array.Empty<Header>(),
+        };
+    }
+
+    private static Connection DefaultConnection()
+    {
+        return new Connection
+        {
+            LinkedInAPIVersion = "202309",
+            Token = "test-token",
+            ConnectionTimeoutSeconds = 30,
+            FollowRedirects = true,
+            AutomaticCookieHandling = true,
+        };
+    }
+
+    private static Options DefaultOptions()
+    {
+        return new Options
+        {
+            ThrowErrorOnFailure = true,
+        };
+    }
+
+    private sealed class MockHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly HttpStatusCode statusCode;
+        private readonly string responseBody;
+        private readonly Exception exception;
+
+        internal MockHttpMessageHandler(HttpStatusCode statusCode, string responseBody)
+        {
+            this.statusCode = statusCode;
+            this.responseBody = responseBody;
+        }
+
+        internal MockHttpMessageHandler(Exception exception)
+        {
+            this.exception = exception;
+        }
+
+        internal bool WasCalled { get; private set; }
+
+        internal string Method { get; private set; }
+
+        internal string RequestUri { get; private set; }
+
+        internal string Authorization { get; private set; }
+
+        internal string RequestBody { get; private set; }
+
+        internal string ContentType { get; private set; }
+
+        internal System.Collections.Generic.Dictionary<string, string> RequestHeaders { get; } =
+            new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            this.WasCalled = true;
+            this.Method = request.Method.Method;
+            this.RequestUri = request.RequestUri.ToString();
+            this.Authorization = request.Headers.Authorization?.ToString();
+            foreach (var header in request.Headers)
+            {
+                this.RequestHeaders[header.Key] = string.Join(",", header.Value);
+            }
+
+            if (request.Content != null)
+            {
+                this.RequestBody = await request.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                this.ContentType = request.Content.Headers.ContentType?.ToString();
+            }
+
+            if (this.exception != null)
+            {
+                throw this.exception;
+            }
+
+            var response = new HttpResponseMessage(this.statusCode)
+            {
+                Content = new StringContent(this.responseBody, Encoding.UTF8, "application/json"),
+            };
+            response.Headers.TryAddWithoutValidation("X-Response", "response-value");
+            return response;
         }
     }
 }

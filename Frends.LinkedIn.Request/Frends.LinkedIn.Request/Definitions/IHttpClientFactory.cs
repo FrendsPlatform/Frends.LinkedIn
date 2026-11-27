@@ -1,17 +1,16 @@
-﻿namespace Frends.LinkedIn.Request.Definitions
-{
-    using System.Net.Http;
+using System.Net.Http;
 
+namespace Frends.LinkedIn.Request.Definitions;
+
+/// <summary>
+/// Http Client Factory Interface.
+/// </summary>
+public interface IHttpClientFactory
+{
     /// <summary>
-    /// Http Client Factory Interface.
+    /// Create client.
     /// </summary>
-    public interface IHttpClientFactory
-    {
-        /// <summary>
-        /// Create client.
-        /// </summary>
-        /// <param name="options">Option parameters</param>
-        /// <returns>HttpClient object</returns>
-        HttpClient CreateClient(Options options);
-    }
+    /// <param name="connection">Connection parameters</param>
+    /// <returns>HttpClient object</returns>
+    HttpClient CreateClient(Connection connection);
 }

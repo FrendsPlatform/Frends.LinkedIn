@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.0] - 2026-11-21
+### Changed
+- Updated the task to target .NET 8.
+- **[Breaking Change]** Moved the following properties from `Options` to the new `Connection` class (new `Connection` parameter tab):
+  `LinkedInAPIVersion`, `Token`, `ConnectionTimeoutSeconds`, `FollowRedirects`, `AllowInvalidCertificate`,
+  `AllowInvalidResponseContentTypeCharSet`, `AutomaticCookieHandling`.
+
+### Added
+- `Options.ThrowErrorOnFailure` (default `true`) - throw an exception when the request fails.
+- `Options.ErrorMessageOnFailure` - custom message to include when the request fails.
+- `Result.Success` (bool) and `Result.Error` (`Error` object with `Message` and `AdditionalInfo`).
+
+### Removed
+- `Options.ThrowExceptionOnErrorResponse` - an exception is now always thrown when the response status code is not 2xx.
+
 ## [1.1.0] - 2025-03-18
 ### Changed
 - Update packages:
